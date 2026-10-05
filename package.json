@@ -3,6 +3,9 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "description": "NovaPOS — a professional Point of Sale system built with Vue 3, Pinia, Vue Router, Vue I18n and Tailwind CSS.",
   "scripts": {
     "dev": "vite",
