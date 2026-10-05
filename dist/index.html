@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="NovaPOS — modern Point of Sale system for retail businesses." />
+    <meta name="theme-color" content="#4f46e5" />
+    <title>NovaPOS — Point of Sale</title>
+
+    <!--
+      Pre-paint theme bootstrap — applies the persisted NovaPOS theme before the
+      first paint so there is never a flash of the wrong colours. Every token it
+      touches has a static fallback in main.css, so a failure here is harmless.
+    -->
+    <script>
+      (function () {
+        try {
+          var saved = JSON.parse(localStorage.getItem('novapos-theme') || '{}')
+          var mode = saved.mode || 'system'
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+          var dark = mode === 'dark' || (mode === 'system' && prefersDark)
+          var root = document.documentElement
+
+          root.classList.toggle('dark', dark)
+          root.style.colorScheme = dark ? 'dark' : 'light'
+
+          var s = (dark ? saved.dark : saved.light) || {}
+          var set = function (name, value) {
+            if (value) root.style.setProperty(name, value)
+          }
+
+          set('--c-bg', s.background)
+          set('--c-card', s.card)
+          set('--c-sidebar', s.sidebar)
+          set('--c-navbar', s.navbar)
+          set('--c-subtle', s.subtle)
+          set('--c-border', s.border)
+          set('--c-input', s.input)
+          set('--c-input-border', s.inputBorder)
+          set('--c-heading', s.heading)
+          set('--c-text', s.text)
+          set('--c-text-secondary', s.secondaryText)
+          set('--c-muted', s.mutedText)
+
+          set('--c-primary', saved.primary)
+          set('--c-secondary', saved.secondary)
+          set('--c-accent', saved.accent)
+          set('--c-success', saved.success)
+          set('--c-warning', saved.warning)
+          set('--c-danger', saved.danger)
+          set('--c-info', saved.info)
+
+          root.style.background = s.background || ''
+        } catch (e) {}
+      })()
+    </script>
+    <script type="module" crossorigin src="/assets/index-1HEUA7Gl.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BGhvfm9L.css">
+  </head>
+
+  <body class="h-full">
+    <div id="app" class="h-full"></div>
+  </body>
+</html>

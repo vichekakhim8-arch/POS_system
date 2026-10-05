@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>NovaPOS — UX/UI Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<style type="text/tailwindcss">
+  @custom-variant dark (&:where(.dark, .dark *));
+  @theme {
+    --color-brand-50:  var(--b50);  --color-brand-100: var(--b100);
+    --color-brand-400: var(--b400); --color-brand-500: var(--b500);
+    --color-brand-600: var(--b600); --color-brand-700: var(--b700);
+  }
+</style>
+<style>
+  html,body,#app{height:100%;margin:0}
+  body{font-family:'Noto Sans','Noto Sans Khmer',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    background:var(--c-bg);color:var(--c-text);letter-spacing:-.006em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+  h1,h2,h3,h4{letter-spacing:-.014em;text-wrap:balance}
+  table,td,th,.tabular-nums{font-variant-numeric:tabular-nums}
+  /* Khmer mode: taller leading, no negative tracking */
+  .km,.km body{font-family:'Noto Sans Khmer','Noto Sans',sans-serif;letter-spacing:0;line-height:1.75}
+  .km h1,.km h2,.km h3,.km h4{letter-spacing:0;line-height:1.45}
+  .km button,.km .field,.km .lbl,.km th,.km td{line-height:1.6}
+  .km .tabular-nums,.km td,.km th{font-family:'Noto Sans','Noto Sans Khmer',sans-serif}
+  .flagdot{width:20px;height:20px;border-radius:9999px;display:grid;place-items:center;
+    font-size:11px;line-height:1;background:#fff;box-shadow:0 0 0 1px rgb(0 0 0/.07);flex-shrink:0}
+  .card{background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--r2xl);box-shadow:0 1px 2px rgb(15 23 42/.04)}
+  .card-h{transition:all .2s ease}
+  .card-h:hover{border-color:color-mix(in srgb,var(--c-primary) 45%,var(--c-border));box-shadow:0 12px 32px -10px rgb(15 23 42/.16);transform:translateY(-2px)}
+  /* bordered input system */
+  .field{width:100%;border-radius:var(--rxl);border:1px solid var(--c-ibd);background:var(--c-input);padding:.65rem .9rem;
+    font-size:.875rem;line-height:1.45;color:var(--c-text);outline:none;appearance:none;
+    transition:border-color .15s,background-color .15s,box-shadow .15s}
+  .field::placeholder{color:var(--c-muted)}
+  .field:hover:not(:focus){border-color:color-mix(in srgb,var(--c-primary) 42%,var(--c-ibd))}
+  .field:focus{border-color:var(--c-primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--c-primary) 13%,transparent)}
+  /* input group — icon activates with focus */
+  .ig{position:relative}
+  .ig .ic{position:absolute;left:.875rem;top:50%;transform:translateY(-50%);color:var(--c-muted);
+    pointer-events:none;transition:color .15s}
+  .ig:focus-within .ic{color:var(--c-primary)}
+  .ig .ia{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);display:grid;place-items:center;
+    width:2rem;height:2rem;border:0;border-radius:var(--rlg);background:transparent;color:var(--c-muted);
+    cursor:pointer;transition:color .15s,background-color .15s}
+  .ig .ia:hover{color:var(--c-primary);background:color-mix(in srgb,var(--c-primary) 10%,transparent)}
+  .ig .ia.on{color:var(--c-primary)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600;font-size:.875rem;
+    padding:.65rem 1.05rem;border-radius:var(--btnr);border:1px solid transparent;transition:.15s;white-space:nowrap}
+  .btn:active{transform:scale(.985)}
+  .btn-p{background:var(--c-primary);color:var(--c-on)}
+  .btn-p:hover{filter:brightness(.93)}
+  .btn-s{background:var(--c-card);color:var(--c-text);border-color:var(--c-border)}
+  .btn-s:hover{color:var(--c-primary);border-color:var(--c-primary)}
+  .ib{padding:.5rem;border-radius:var(--rlg);color:var(--c-muted);transition:.15s}
+  .ib:hover{color:var(--c-primary);background:color-mix(in srgb,var(--c-primary) 10%,transparent)}
+  .lbl{display:block;font-size:.75rem;font-weight:600;color:var(--c-muted);margin-bottom:.375rem}
+  .hd{color:var(--c-head)} .mut{color:var(--c-muted)} .sub{background:var(--c-sub)}
+  .bd{border-color:var(--c-border)!important}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--c-muted) 50%,transparent);border-radius:99px}
+  .fade-enter-active,.fade-leave-active{transition:opacity .18s}
+  .fade-enter-from,.fade-leave-to{opacity:0}
+  .pg-enter-active{transition:opacity .22s,transform .22s}
+  .pg-enter-from{opacity:0;transform:translateY(8px)}
+  .no-sb::-webkit-scrollbar{display:none}
+  .pb-safe{padding-bottom:env(safe-area-inset-bottom,0)}
+</style>
+</head>
+<body class="h-full">
+<div id="app" class="h-full"></div>
+
+<script>
+const { createApp, ref, reactive, computed, watch, onMounted, nextTick } = Vue;
+
+/* ════════════ ICONS ════════════ */
+const P = {
+  dash:'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10',
+  pos:'M3 3h2l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2 5h14M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z',
+  box:'M21 7.5l-9-5-9 5m18 0l-9 5m9-5v9l-9 5m0-9l-9-5m9 5v9m-9-14v9l9 5',
+  tag:'M7 7h.01M3 10.5V5a2 2 0 012-2h5.5a2 2 0 011.41.59l8.5 8.5a2 2 0 010 2.82l-5.59 5.59a2 2 0 01-2.82 0l-8.5-8.5A2 2 0 013 10.5z',
+  clip:'M9 4h6a1 1 0 011 1v1h2a1 1 0 011 1v13a1 1 0 01-1 1H6a1 1 0 01-1-1V7a1 1 0 011-1h2V5a1 1 0 011-1zm0 2v1h6V6',
+  spark:'M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3zM19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z',
+  chart:'M4 20h16M7 16V9m5 7V5m5 11v-4', gear:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.6 1.6 0 00.3 1.8a2 2 0 11-2.8 2.8a1.6 1.6 0 00-2.7 1.1V21a2 2 0 11-4 0a1.6 1.6 0 00-2.7-1.1a2 2 0 11-2.8-2.8A1.6 1.6 0 003 14a2 2 0 110-4a1.6 1.6 0 001.6-1a2 2 0 112.8-2.8A1.6 1.6 0 0010 3.6V3a2 2 0 114 0a1.6 1.6 0 002.7 1.1a2 2 0 112.8 2.8a1.6 1.6 0 001.1 2.7H21a2 2 0 110 4h-.1z',
+  search:'M11 19a8 8 0 100-16 8 8 0 000 16zm10 2l-4.35-4.35', plus:'M12 5v14M5 12h14', minus:'M5 12h14',
+  x:'M6 6l12 12M18 6L6 18', check:'M5 13l4 4L19 7', trash:'M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3',
+  edit:'M4 20h4l10-10a2.8 2.8 0 10-4-4L4 16v4z', eye:'M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7zm11 3a3 3 0 100-6 3 3 0 000 6z',
+  eyeOff:'M9.9 4.24A9.1 9.1 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M6.1 6.1A18.5 18.5 0 001 12s4 8 11 8a9.1 9.1 0 005.9-2.1M2 2l20 20',
+  lock:'M5 11h14a1 1 0 011 1v8a1 1 0 01-1 1H5a1 1 0 01-1-1v-8a1 1 0 011-1zm2 0V7a5 5 0 0110 0v4m-5 4v3',
+  mail:'M3 6h18a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V7a1 1 0 011-1zm0 1l9 7 9-7',
+  menu:'M4 7h16M4 12h16M4 17h16', bell:'M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0',
+  sun:'M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2m0 18v2M4.2 4.2l1.4 1.4m12.8 12.8l1.4 1.4M1 12h2m18 0h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4',
+  moon:'M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z', mon:'M4 4h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zM8 20h8m-4-4v4',
+  cart:'M3 4h2l2.5 11h10L20 7H6M9 20a1 1 0 100-2 1 1 0 000 2zm9 0a1 1 0 100-2 1 1 0 000 2z',
+  chev:'M9 6l6 6-6 6', user:'M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-7 2-7 4.5V21h14v-2.5C19 16 16 14 12 14z',
+  store:'M3 9l1.5-5h15L21 9M3 9v11h18V9M3 9h18M9 20v-6h6v6', pal:'M12 3a9 9 0 100 18c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.8.7-1.5 1.5-1.5H16a5 5 0 005-5c0-4.4-4-8-9-8zM7.5 12a1 1 0 100-2 1 1 0 000 2zm3-3.5a1 1 0 100-2 1 1 0 000 2zm5 0a1 1 0 100-2 1 1 0 000 2z',
+  dollar:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6', up:'M23 6l-9.5 9.5-5-5L1 18M17 6h6v6',
+  alert:'M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z',
+  users:'M17 20h5v-1a4 4 0 00-4-4h-1m-6 5H2v-1a4 4 0 014-4h1m2-4a4 4 0 100-8 4 4 0 000 8zm8 0a3 3 0 100-6 3 3 0 000 6z',
+  print:'M6 9V3h12v6M6 18H4v-6h16v6h-2M8 14h8v7H8z', wallet:'M3 7a2 2 0 012-2h12a2 2 0 012 2v1h1a1 1 0 011 1v8a1 1 0 01-1 1h-1a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm14 5h3',
+  layers:'M12 3l9 5-9 5-9-5 9-5zm9 9l-9 5-9-5m18 4l-9 5-9-5', down:'M12 3v12m0 0l-4-4m4 4l4-4M4 21h16'
+};
+const Icon = { props:{n:String,c:{type:String,default:'w-5 h-5'}},
+  template:`<svg :class="c" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path :d="d"/></svg>`,
+  computed:{ d(){ return P[this.n]||'' } } };
+
+/* ════════════ THEME ════════════ */
+const hx=h=>{h=h.replace('#','');return{r:parseInt(h.slice(0,2),16),g:parseInt(h.slice(2,4),16),b:parseInt(h.slice(4,6),16)}};
+const th=(a,b,t)=>{const x=hx(a),y=hx(b);const c=v=>Math.round(v).toString(16).padStart(2,'0');
+  return '#'+c(x.r+(y.r-x.r)*t)+c(x.g+(y.g-x.g)*t)+c(x.b+(y.b-x.b)*t)};
+const lum=h=>{const{r,g,b}=hx(h);const f=c=>{c/=255;return c<=.03928?c/12.92:((c+.055)/1.055)**2.4};return .2126*f(r)+.7152*f(g)+.0722*f(b)};
+const onC=h=>lum(h)>.45?'#0f172a':'#ffffff';
+
+const LIGHT={bg:'#f1f5f9',card:'#ffffff',sub:'#f8fafc',border:'#e2e8f0',head:'#0f172a',text:'#334155',muted:'#94a3b8',input:'#ffffff',ibd:'#e2e8f0'};
+const DARK ={bg:'#020617',card:'#0f172a',sub:'#1e293b',border:'#1e293b',head:'#f8fafc',text:'#cbd5e1',muted:'#64748b',input:'#1e293b',ibd:'#334155'};
+const PRESETS=[
+  {id:'ocean',name:'Ocean Blue',p:'#2563eb',s:'#0ea5e9',a:'#06b6d4'},
+  {id:'royal',name:'Royal Purple',p:'#7c3aed',s:'#a855f7',a:'#ec4899'},
+  {id:'emerald',name:'Emerald',p:'#059669',s:'#10b981',a:'#84cc16'},
+  {id:'sunset',name:'Sunset',p:'#ea580c',s:'#f59e0b',a:'#f43f5e'},
+  {id:'ruby',name:'Ruby',p:'#e11d48',s:'#f43f5e',a:'#a855f7'},
+  {id:'minimal',name:'Minimal',p:'#334155',s:'#64748b',a:'#0ea5e9'},
+];
+const RADII={sharp:[0,0,0,0],small:[2,4,6,9],medium:[4,8,12,16],large:[6,12,18,24],xl:[8,16,24,32]};
+const BTNR={square:'2px',soft:'var(--rxl)',rounded:'9999px'};
+
+const theme=reactive({mode:'system',sysDark:false,preset:'ocean',primary:'#2563eb',secondary:'#0ea5e9',accent:'#06b6d4',
+  success:'#16a34a',warning:'#f59e0b',danger:'#dc2626',radius:'medium',btn:'soft'});
+
+const isDark=computed(()=>theme.mode==='system'?theme.sysDark:theme.mode==='dark');
+const surf=computed(()=>isDark.value?DARK:LIGHT);
+
+function applyTheme(){
+  const r=document.documentElement,s=surf.value,set=(k,v)=>r.style.setProperty(k,v);
+  r.classList.toggle('dark',isDark.value); r.style.colorScheme=isDark.value?'dark':'light';
+  set('--b50',th(theme.primary,'#fff',.92)); set('--b100',th(theme.primary,'#fff',.84));
+  set('--b400',th(theme.primary,'#fff',.24)); set('--b500',th(theme.primary,'#fff',.08));
+  set('--b600',theme.primary); set('--b700',th(theme.primary,'#000',.16));
+  set('--c-primary',theme.primary); set('--c-secondary',theme.secondary); set('--c-accent',theme.accent);
+  set('--c-on',onC(theme.primary));
+  set('--c-bg',s.bg); set('--c-card',s.card); set('--c-sub',s.sub); set('--c-border',s.border);
+  set('--c-head',s.head); set('--c-text',s.text); set('--c-muted',s.muted);
+  set('--c-input',s.input); set('--c-ibd',s.ibd);
+  set('--c-fill',isDark.value?th(s.card,'#ffffff',.07):th(s.bg,'#ffffff',.35));
+  set('--c-fill2',isDark.value?th(s.card,'#ffffff',.12):th(s.bg,'#ffffff',.15));
+  set('--c-success',theme.success); set('--c-warning',theme.warning); set('--c-danger',theme.danger);
+  const R=RADII[theme.radius];
+  set('--rlg',R[1]+'px'); set('--rxl',R[2]+'px'); set('--r2xl',R[3]+'px');
+  set('--btnr',BTNR[theme.btn]);
+  document.body.style.background=s.bg;
+}
+watch(()=>[theme.mode,theme.sysDark,theme.primary,theme.secondary,theme.accent,theme.radius,theme.btn,theme.success,theme.warning,theme.danger],applyTheme,{deep:true});
+
+/* ════════════ CURRENCY ════════════ */
+const CUR=[{code:'USD',name:'US Dollar',sym:'$',flag:'🇺🇸',pos:'before',dec:2,rate:1},
+           {code:'KHR',name:'Cambodian Riel',sym:'៛',flag:'🇰🇭',pos:'after',dec:0,rate:4100}];
+const cur=reactive({code:'USD'});
+const active=computed(()=>CUR.find(c=>c.code===cur.code));
+function money(v){const c=active.value,n=(Number(v)||0)*c.rate;
+  const f=Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:c.dec,maximumFractionDigits:c.dec});
+  const s=n<0?'-':''; return s+(c.pos==='before'?c.sym+f:f+' '+c.sym)}
+
+/* ════════════ DATA ════════════ */
+const CATS=['All','Coffee','Bakery','Drinks','Snacks'];
+const PRODUCTS=[
+  ['Espresso Blend','Coffee',12.50,48,20],['Cappuccino','Coffee',3.80,120,0],['Cold Brew','Coffee',3.25,64,0],
+  ['Latte Grande','Coffee',4.20,52,15],['Croissant','Bakery',2.75,40,0],['Sourdough Loaf','Bakery',5.40,22,0],
+  ['Blueberry Muffin','Bakery',3.10,0,0],['Cinnamon Roll','Bakery',3.60,18,10],['Orange Juice','Drinks',4.10,54,0],
+  ['Iced Tea','Drinks',2.90,88,0],['Sparkling Water','Drinks',1.95,8,0],['Lemonade','Drinks',3.40,36,0],
+  ['Sea Salt Chips','Snacks',2.60,88,0],['Dark Chocolate','Snacks',3.95,41,25],['Mixed Nuts','Snacks',8.50,27,0],
+  ['Protein Bar','Snacks',2.30,110,0]
+].map((p,i)=>({id:i+1,name:p[0],cat:p[1],price:p[2],stock:p[3],disc:p[4],
+  sku:'SKU-'+(1000+i),img:'https://picsum.photos/seed/pos'+i+'/300/300'}));
+
+const ORDERS=Array.from({length:14},(_,i)=>({id:'ORD-'+(2401+i),
+  cust:['Walk-in Customer','Sophea Chan','Dara Kim','Nita Sok'][i%4],
+  date:'Oct '+(20-i)+', 2026',items:1+(i%4),total:+(8+i*4.35).toFixed(2),
+  method:['Cash','KHQR','Card','Bank Transfer'][i%4],
+  status:['Paid','Paid','Pending','Paid','Refunded','Paid','Cancelled'][i%7]}));
+
+const DISCOUNTS=[
+  {id:'DSC-1001',name:'Weekend Sale',type:'%',val:20,to:'All Products',range:'Oct 4 → Oct 10',status:'Active',code:'WEEKEND20'},
+  {id:'DSC-1002',name:'Coffee Lovers',type:'$',val:2,to:'Coffee',range:'Oct 1 → Nov 1',status:'Active',code:''},
+  {id:'DSC-1003',name:'Bakery Happy Hour',type:'%',val:15,to:'Bakery',range:'15:00 – 18:00',status:'Active',code:''},
+  {id:'DSC-1004',name:'New Year Launch',type:'%',val:25,to:'Snacks',range:'Dec 28 → Jan 5',status:'Scheduled',code:'NY25'},
+  {id:'DSC-1005',name:'Clearance',type:'$',val:1.5,to:'All Products',range:'Sep 1 → Sep 20',status:'Expired',code:''},
+  {id:'DSC-1006',name:'Staff Discount',type:'%',val:30,to:'All Products',range:'Always',status:'Disabled',code:'STAFF30'},
+];
+
+/* ════════════ CART ════════════ */
+const cart=reactive({items:[]});
+const priceOf=p=>p.disc?+(p.price*(1-p.disc/100)).toFixed(2):p.price;
+const sub=computed(()=>cart.items.reduce((s,i)=>s+i.price*i.qty,0));
+const discT=computed(()=>cart.items.reduce((s,i)=>s+(i.price-priceOf(i))*i.qty,0));
+const tax=computed(()=>+((sub.value-discT.value)*.085).toFixed(2));
+const total=computed(()=>+(sub.value-discT.value+tax.value).toFixed(2));
+const count=computed(()=>cart.items.reduce((s,i)=>s+i.qty,0));
+
+/* ════════════ TOASTS ════════════ */
+const toasts=ref([]);
+function toast(m,t='ok'){const id=Math.random();toasts.value.push({id,m,t});setTimeout(()=>toasts.value=toasts.value.filter(x=>x.id!==id),2200)}
+
+/* ════════════ COMPONENTS ════════════ */
+/* ─── Reusable Pagination ─── */
+function buildPages(cur,last,slots){
+  if(last<=slots)return Array.from({length:last},(_,i)=>i+1);
+  const side=Math.floor((slots-3)/2),out=[1];
+  let s=Math.max(2,cur-side),e=Math.min(last-1,cur+side);
+  if(cur-side<=2)e=slots-1; if(cur+side>=last-1)s=last-slots+2;
+  if(s>2)out.push('…'); for(let i=s;i<=e;i++)out.push(i); if(e<last-1)out.push('…');
+  out.push(last); return out;
+}
+const Pagination={props:{page:Number,perPage:Number,total:Number,lastPage:Number,from:Number,to:Number,label:{type:String,default:'results'}},
+ emits:['update:page','update:perPage'],components:{Icon},
+ template:`<nav class="flex flex-col gap-3 px-4 py-3 border-t bd sm:flex-row sm:items-center sm:justify-between" aria-label="Pagination">
+  <div class="flex items-center justify-between gap-4 sm:justify-start">
+    <p class="text-xs sm:text-[13px] mut tabular-nums">
+      <template v-if="!total">No {{label}}</template>
+      <template v-else>Showing <span class="font-semibold hd">{{from}}–{{to}}</span> of <span class="font-semibold hd">{{total.toLocaleString()}}</span> {{label}}</template></p>
+    <label class="flex items-center gap-2 shrink-0"><span class="hidden sm:inline text-xs mut">Rows</span>
+      <select class="field py-1.5 pl-2.5 pr-7 text-xs w-[62px] cursor-pointer" :value="perPage"
+        @change="$emit('update:perPage',Number($event.target.value))">
+        <option v-for="o in [10,25,50,100]" :key="o" :value="o">{{o}}</option></select></label></div>
+
+  <div v-if="lastPage>1" class="flex items-center justify-between gap-1.5 sm:justify-end">
+    <button v-if="lastPage>5" class="hidden sm:inline-flex items-center justify-center w-9 h-9 border bd mut transition disabled:opacity-35 disabled:cursor-not-allowed"
+      :style="{borderRadius:'var(--rxl)'}" :disabled="page<=1" @click="$emit('update:page',1)" aria-label="First page">
+      <Icon n="chev" c="w-4 h-4 rotate-180 -mr-2"/><Icon n="chev" c="w-4 h-4 rotate-180"/></button>
+
+    <button class="inline-flex items-center gap-1.5 h-9 px-3 border bd text-sm font-medium transition active:scale-[.97] disabled:opacity-35 disabled:cursor-not-allowed disabled:active:scale-100"
+      :style="{borderRadius:'var(--rxl)',color:'var(--c-text)'}" :disabled="page<=1" @click="$emit('update:page',page-1)" aria-label="Previous page">
+      <Icon n="chev" c="w-4 h-4 rotate-180"/><span class="hidden sm:inline">Previous</span></button>
+
+    <div class="hidden sm:flex items-center gap-1">
+      <template v-for="(p,i) in dPages" :key="'d'+i">
+        <span v-if="p==='…'" class="w-7 text-center text-sm mut select-none">…</span>
+        <button v-else class="min-w-9 h-9 px-2 text-sm font-semibold tabular-nums transition active:scale-[.97]"
+          :style="p===page?{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--rxl)'}:{border:'1px solid var(--c-border)',color:'var(--c-text)',borderRadius:'var(--rxl)'}"
+          :aria-current="p===page?'page':undefined" @click="$emit('update:page',p)">{{p}}</button></template></div>
+
+    <div class="flex sm:hidden items-center gap-1">
+      <template v-for="(p,i) in mPages" :key="'m'+i">
+        <span v-if="p==='…'" class="w-5 text-center text-sm mut">…</span>
+        <button v-else class="min-w-8 h-8 px-1.5 text-xs font-semibold tabular-nums"
+          :style="p===page?{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--rlg)'}:{border:'1px solid var(--c-border)',color:'var(--c-text)',borderRadius:'var(--rlg)'}"
+          @click="$emit('update:page',p)">{{p}}</button></template></div>
+
+    <button class="inline-flex items-center gap-1.5 h-9 px-3 border bd text-sm font-medium transition active:scale-[.97] disabled:opacity-35 disabled:cursor-not-allowed disabled:active:scale-100"
+      :style="{borderRadius:'var(--rxl)',color:'var(--c-text)'}" :disabled="page>=lastPage" @click="$emit('update:page',page+1)" aria-label="Next page">
+      <span class="hidden sm:inline">Next</span><Icon n="chev" c="w-4 h-4"/></button>
+
+    <button v-if="lastPage>5" class="hidden sm:inline-flex items-center justify-center w-9 h-9 border bd mut transition disabled:opacity-35 disabled:cursor-not-allowed"
+      :style="{borderRadius:'var(--rxl)'}" :disabled="page>=lastPage" @click="$emit('update:page',lastPage)" aria-label="Last page">
+      <Icon n="chev" c="w-4 h-4 -mr-2"/><Icon n="chev" c="w-4 h-4"/></button></div></nav>`,
+ computed:{dPages(){return buildPages(this.page,this.lastPage,7)},mPages(){return buildPages(this.page,this.lastPage,5)}}};
+
+/* ─── Filter panel ─── */
+const FilterPanel={props:{open:Boolean,activeCount:{type:Number,default:0}},emits:['update:open','reset'],components:{Icon},
+ template:`<div class="w-full"><div class="flex flex-col sm:flex-row gap-2.5">
+  <div class="grow min-w-0"><slot name="search"/></div>
+  <div class="flex gap-2 shrink-0">
+    <button class="inline-flex items-center gap-2 h-[42px] px-3.5 text-sm font-medium border transition active:scale-[.98]"
+      :style="(open||activeCount)?{borderColor:'var(--c-primary)',color:'var(--c-primary)',background:'color-mix(in srgb,var(--c-primary) 8%,transparent)',borderRadius:'var(--rxl)'}:{borderColor:'var(--c-border)',color:'var(--c-text)',borderRadius:'var(--rxl)'}"
+      @click="$emit('update:open',!open)">
+      <Icon n="filter" c="w-4 h-4"/><span>Filter</span>
+      <span v-if="activeCount" class="min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold inline-flex items-center justify-center"
+        :style="{background:'var(--c-primary)',color:'var(--c-on)'}">{{activeCount}}</span>
+      <Icon n="chev" c="w-3.5 h-3.5 opacity-60 transition-transform duration-300" :class="open?'-rotate-90':'rotate-90'"/></button>
+    <transition enter-active-class="transition duration-200" enter-from-class="opacity-0 scale-90" leave-active-class="transition duration-150" leave-to-class="opacity-0 scale-90">
+      <button v-if="activeCount" class="inline-flex items-center gap-1.5 h-[42px] px-3 text-sm font-medium border bd mut transition"
+        :style="{borderRadius:'var(--rxl)'}" @click="$emit('reset')"><Icon n="x" c="w-4 h-4"/><span class="hidden sm:inline">Reset</span></button></transition></div></div>
+  <div class="grid transition-all duration-300 ease-out" :style="{gridTemplateRows:open?'1fr':'0fr',opacity:open?1:0}">
+    <div class="overflow-hidden"><div class="mt-2.5 p-3 border bd sub grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5" :style="{borderRadius:'var(--r2xl)'}"><slot/></div></div></div></div>`};
+
+/* ─── Confirm dialog ─── */
+const Confirm={props:{open:Boolean,title:String,message:String,count:{type:Number,default:0},confirmLabel:{type:String,default:'Delete'}},
+ emits:['close','confirm'],components:{Icon},
+ template:`<transition name="fade"><div v-if="open" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="$emit('close')"></div>
+  <div class="relative card w-full sm:max-w-md p-5">
+    <div class="flex gap-4">
+      <span class="w-11 h-11 shrink-0 flex items-center justify-center" :style="{background:'color-mix(in srgb,var(--c-danger) 14%,transparent)',color:'var(--c-danger)',borderRadius:'var(--rxl)'}"><Icon n="trash" c="w-5 h-5"/></span>
+      <div class="min-w-0"><h3 class="font-semibold hd">{{title}}</h3>
+        <p class="text-sm mut mt-1 leading-relaxed">{{message}}</p>
+        <p v-if="count>1" class="mt-2 inline-flex items-center gap-1.5 px-2 py-1 sub text-xs font-semibold hd" :style="{borderRadius:'var(--rlg)'}">
+          <Icon n="layers" c="w-3.5 h-3.5"/>{{count}} records selected</p>
+        <p class="mt-2 text-xs mut">This action cannot be undone.</p></div></div>
+    <div class="flex gap-2 mt-5"><button class="btn btn-s flex-1" @click="$emit('close')">Cancel</button>
+      <button class="btn flex-1 text-white" :style="{background:'var(--c-danger)',borderRadius:'var(--btnr)'}" @click="$emit('confirm')">
+        <Icon n="trash" c="w-4 h-4"/>{{confirmLabel}}</button></div></div></div></transition>`};
+
+const Badge={props:{t:String},template:`<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold" :style="st"><span class="w-1.5 h-1.5 rounded-full" :style="{background:col}"></span><slot>{{t}}</slot></span>`,
+ computed:{col(){return{Paid:'var(--c-success)',Active:'var(--c-success)',Pending:'var(--c-warning)',Scheduled:'var(--c-info,var(--c-secondary))',Refunded:'var(--c-danger)',Expired:'var(--c-warning)',Cancelled:'var(--c-muted)',Disabled:'var(--c-muted)'}[this.t]||'var(--c-muted)'},
+  st(){return{background:`color-mix(in srgb,${this.col} 14%,transparent)`,color:this.col,borderRadius:'var(--rlg)'}}}};
+
+const Stat={props:{label:String,val:String,icon:String,trend:String,tone:{type:String,default:'p'}},components:{Icon},
+ template:`<div class="card card-h p-5 min-h-[132px] flex flex-col justify-between">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0"><p class="text-[11px] font-bold uppercase tracking-wider mut truncate">{{label}}</p>
+      <p class="mt-2 text-[26px] leading-tight font-bold hd truncate">{{val}}</p></div>
+    <span class="w-11 h-11 flex items-center justify-center shrink-0" :style="box"><Icon :n="icon"/></span></div>
+  <div v-if="trend" class="mt-3 flex items-center gap-1.5">
+    <span class="px-1.5 py-0.5 text-[11px] font-bold" :style="tb">{{trend}}</span>
+    <span class="text-xs mut">vs last period</span></div></div>`,
+ computed:{c(){return{p:'var(--c-primary)',s:'var(--c-secondary)',g:'var(--c-success)',w:'var(--c-warning)',d:'var(--c-danger)'}[this.tone]},
+  box(){return{background:`color-mix(in srgb,${this.c} 13%,transparent)`,color:this.c,borderRadius:'var(--rxl)'}},
+  tb(){const up=!this.trend.startsWith('-');const col=up?'var(--c-success)':'var(--c-danger)';
+    return{background:`color-mix(in srgb,${col} 14%,transparent)`,color:col,borderRadius:'var(--rlg)'}}}};
+
+/* ─── Currency Switcher ─── */
+const CurSwitch={components:{Icon},
+ template:`<div class="relative" @keydown.esc="open=false">
+  <button class="inline-flex items-center gap-1.5 border bd px-2.5 py-2 text-sm transition"
+    :style="{borderRadius:'var(--rxl)',background:'var(--c-card)'}" :aria-expanded="open" @click="open=!open">
+    <span class="text-base leading-none">{{a.flag}}</span>
+    <span class="font-semibold hd">{{a.code}}</span>
+    <span class="mut hidden sm:inline">{{a.sym}}</span>
+    <Icon n="chev" c="w-3.5 h-3.5 mut transition-transform" :class="open?'-rotate-90':'rotate-90'"/>
+  </button>
+  <transition name="fade">
+  <div v-if="open" class="absolute right-0 mt-2 w-64 z-50 card overflow-hidden shadow-xl">
+    <div class="px-4 pt-3 pb-2"><p class="text-sm font-semibold hd">Currency</p><p class="text-[11px] mut">Display currency</p></div>
+    <div class="h-px bd border-t"></div>
+    <div class="p-1.5">
+      <button v-for="c in list" :key="c.code" class="w-full flex items-center gap-3 px-2.5 py-2.5 text-left transition"
+        :style="{borderRadius:'var(--rxl)',background:c.code===cur.code?'color-mix(in srgb,var(--c-primary) 11%,transparent)':''}"
+        @click="pick(c.code)">
+        <span class="text-xl leading-none">{{c.flag}}</span>
+        <span class="min-w-0 grow"><span class="block text-sm font-semibold truncate" :style="{color:c.code===cur.code?'var(--c-primary)':'var(--c-head)'}">{{c.code}}</span>
+          <span class="block text-[11px] mut truncate">{{c.name}}</span></span>
+        <span class="text-sm font-semibold mut">{{c.sym}}</span>
+        <Icon v-if="c.code===cur.code" n="check" c="w-4 h-4" :style="{color:'var(--c-primary)'}"/>
+      </button></div>
+    <div class="h-px bd border-t"></div>
+    <p class="px-4 py-2.5 text-[11px] mut">{{cur.code==='USD'?'Base currency':'1 USD ≈ 4,100 KHR'}}</p>
+  </div></transition>
+  <div v-if="open" class="fixed inset-0 z-40" @click="open=false"></div></div>`,
+ setup(){const open=ref(false);
+  const pick=c=>{cur.code=c;open.value=false;toast('Display currency: '+c)};
+  return{open,pick,cur,list:CUR,a:active}}};
+
+/* ─── Sidebar ─── */
+const NAV=[
+  {g:'Main',items:[['dashboard','Dashboard','dash'],['pos','POS Terminal','pos']]},
+  {g:'Catalogue',items:[['products','Products','box'],['inventory','Inventory','layers']]},
+  {g:'Sales',items:[['orders','Orders','clip'],['customers','Customers','users']]},
+  {g:'Marketing',items:[['discounts','Discounts','spark']]},
+  {g:'Insights',items:[['reports','Reports','chart']]},
+  {g:'System',items:[['settings','Settings','gear']]},
+];
+
+/* ════════════ VIEWS ════════════ */
+const Dashboard={components:{Stat,Badge,Icon},
+ template:`<div>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 mb-6 border-b bd">
+    <div><h1 class="text-xl sm:text-[22px] font-bold hd tracking-tight">Dashboard</h1>
+      <p class="text-sm mut mt-0.5">Welcome back — here is how your store is performing.</p></div>
+    <div class="flex gap-2"><button class="btn btn-s">Last 30 days</button><button class="btn btn-p"><Icon n="pos" c="w-4 h-4"/>Open POS</button></div></div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <Stat label="Today's sales" :val="m(1284.5)" icon="dollar" trend="+12.4%"/>
+    <Stat label="Today's orders" val="37" icon="cart" tone="s" trend="+8.1%"/>
+    <Stat label="Total products" val="16" icon="box" tone="p"/>
+    <Stat label="Low stock" val="3" icon="alert" tone="w"/>
+    <Stat label="Revenue" :val="m(24580)" icon="up" tone="g" trend="+16.9%"/>
+    <Stat label="Profit" :val="m(8140)" icon="chart" tone="d" trend="-2.3%"/></div>
+
+  <div class="grid xl:grid-cols-3 gap-5 mt-5">
+    <div class="card p-5 xl:col-span-2">
+      <div class="flex items-center justify-between mb-4"><div><h3 class="font-semibold hd">Sales overview</h3>
+        <p class="text-xs mut">Daily revenue</p></div><span class="text-sm font-bold" :style="{color:'var(--c-primary)'}">{{m(24580)}}</span></div>
+      <svg viewBox="0 0 700 240" class="w-full" style="height:240px">
+        <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--c-primary)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--c-primary)" stop-opacity="0"/></linearGradient></defs>
+        <line v-for="f in [0,.25,.5,.75,1]" :key="f" x1="34" x2="666" :y1="34+f*172" :y2="34+f*172" stroke="currentColor" stroke-opacity=".1" stroke-dasharray="4 6" class="mut"/>
+        <path :d="area" fill="url(#g1)"/><path :d="line" fill="none" stroke="var(--c-primary)" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle v-for="(p,i) in pts" :key="i" :cx="p[0]" :cy="p[1]" r="3.5" fill="#fff" stroke="var(--c-primary)" stroke-width="2"/>
+        <text v-for="(p,i) in pts" :key="'t'+i" :x="p[0]" y="232" text-anchor="middle" font-size="10.5" fill="currentColor" fill-opacity=".5">{{lbls[i]}}</text>
+      </svg></div>
+    <div class="card p-5"><h3 class="font-semibold hd">Sales by category</h3><p class="text-xs mut mb-5">Revenue contribution</p>
+      <div class="flex items-center gap-5 flex-wrap">
+        <svg viewBox="0 0 160 160" class="w-36 h-36 shrink-0">
+          <circle v-for="(s,i) in donut" :key="i" cx="80" cy="80" r="60" fill="none" :stroke="s.c" stroke-width="22"
+            :stroke-dasharray="s.da" :stroke-dashoffset="s.off" transform="rotate(-90 80 80)"/></svg>
+        <ul class="space-y-2 text-sm grow min-w-[120px]">
+          <li v-for="(s,i) in donut" :key="i" class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full" :style="{background:s.c}"></span>
+            <span class="mut">{{s.l}}</span><span class="font-semibold hd ml-auto">{{s.p}}%</span></li></ul></div></div></div>
+
+  <div class="card overflow-hidden mt-5">
+    <div class="px-5 py-4 border-b bd flex items-center justify-between"><h3 class="font-semibold hd">Recent transactions</h3>
+      <button class="text-sm font-medium" :style="{color:'var(--c-primary)'}" @click="$emit('go','orders')">View all</button></div>
+    <div class="overflow-x-auto"><table class="w-full text-sm min-w-[560px]">
+      <thead><tr class="sub"><th v-for="h in ['Order','Customer','Method','Status','Total']" :key="h"
+        class="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider mut" :class="h==='Total'?'text-right':'text-left'">{{h}}</th></tr></thead>
+      <tbody><tr v-for="o in orders.slice(0,6)" :key="o.id" class="border-t bd">
+        <td class="px-5 py-3"><p class="font-semibold hd">{{o.id}}</p><p class="text-xs mut">{{o.date}}</p></td>
+        <td class="px-5 py-3 mut">{{o.cust}}</td><td class="px-5 py-3 mut">{{o.method}}</td>
+        <td class="px-5 py-3"><Badge :t="o.status"/></td>
+        <td class="px-5 py-3 text-right font-semibold hd">{{m(o.total)}}</td></tr></tbody></table></div></div></div>`,
+ setup(){const data=[820,1240,980,1680,1420,2100,1860,2340,1980,2620,2280,2980];
+  const lbls=['Oct 9','Oct 10','Oct 11','Oct 12','Oct 13','Oct 14','Oct 15','Oct 16','Oct 17','Oct 18','Oct 19','Oct 20'];
+  const max=Math.max(...data)*1.15;
+  const pts=data.map((v,i)=>[34+i*(632/11),206-(v/max)*172]);
+  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area=line+` L${pts[11][0].toFixed(1)} 206 L34 206 Z`;
+  const vals=[42,26,19,13];const C=2*Math.PI*60;let acc=0;
+  const cols=['var(--c-primary)','var(--c-secondary)','var(--c-accent)','var(--c-warning)'];
+  const donut=['Coffee','Bakery','Drinks','Snacks'].map((l,i)=>{const f=vals[i]/100;
+    const o={l,p:vals[i],c:cols[i],da:`${(f*C).toFixed(1)} ${C.toFixed(1)}`,off:(-acc*C).toFixed(1)};acc+=f;return o});
+  return{m:money,pts,line,area,lbls,donut,orders:ORDERS}}};
+
+const POS={components:{Icon},
+ template:`<div class="h-full flex flex-col xl:flex-row gap-4">
+  <section class="grow flex flex-col min-w-0">
+    <div class="card p-4 shrink-0">
+      <div class="relative"><Icon n="search" c="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 mut"/>
+        <input v-model="q" class="field pl-10" placeholder="Scan barcode or search product…"/></div>
+      <div class="flex gap-2 mt-3 overflow-x-auto no-sb pb-1">
+        <button v-for="c in cats" :key="c" class="px-3.5 py-2 text-sm font-medium whitespace-nowrap border transition"
+          :style="c===cat?{background:'var(--c-primary)',color:'var(--c-on)',borderColor:'var(--c-primary)',borderRadius:'var(--rxl)'}:{background:'var(--c-card)',borderColor:'var(--c-border)',borderRadius:'var(--rxl)',color:'var(--c-text)'}"
+          @click="cat=c">{{c}}</button></div></div>
+
+    <div class="flex items-center justify-between gap-3 px-1 mt-4 mb-2.5 shrink-0">
+      <p class="text-xs font-medium mut tabular-nums">{{list.length}} products
+        <span v-if="cat!=='All'">· {{cat}}</span></p>
+      <button v-if="q||cat!=='All'" class="text-xs font-semibold" :style="{color:'var(--c-primary)'}" @click="q='';cat='All'">Clear filters</button></div>
+
+    <div class="grow overflow-y-auto overflow-x-hidden pb-28 xl:pb-2 -mx-1 px-1">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3">
+        <button v-for="p in list" :key="p.id"
+          class="group relative flex flex-col text-left overflow-hidden border bd transition-all duration-200 hover:-translate-y-0.5"
+          :style="{background:'var(--c-card)',borderRadius:'var(--r2xl)'}"
+          :class="p.stock<=0?'opacity-50 pointer-events-none':'hover:shadow-[0_10px_30px_-12px_rgb(15_23_42/.25)]'" @click="add(p)">
+          <div class="relative aspect-square w-full overflow-hidden sub">
+            <img :src="p.img" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.07]" loading="lazy"/>
+            <span v-if="p.stock<=0" class="absolute inset-0 bg-slate-900/70 text-white text-xs font-bold flex items-center justify-center backdrop-blur-[2px]">Out of stock</span>
+            <span v-else-if="p.disc" class="absolute top-2 left-2 px-2 py-1 text-[10px] font-bold leading-none text-white shadow-sm"
+              :style="{background:'var(--c-danger)',borderRadius:'var(--rlg)'}">−{{p.disc}}%</span>
+            <span v-else-if="p.stock<=10" class="absolute top-2 left-2 px-2 py-1 text-[10px] font-bold leading-none text-white shadow-sm"
+              :style="{background:'var(--c-warning)',borderRadius:'var(--rlg)'}">{{p.stock}} left</span>
+            <span class="absolute bottom-2 right-2 w-9 h-9 flex items-center justify-center shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200"
+              :style="{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--rxl)'}"><Icon n="plus" c="w-5 h-5"/></span></div>
+          <div class="flex flex-col grow p-3 gap-1">
+            <p class="text-[13px] font-semibold hd leading-[1.35] line-clamp-2 min-h-[2.3rem]">{{p.name}}</p>
+            <div class="mt-auto flex items-end justify-between gap-2">
+              <div class="min-w-0">
+                <p v-if="p.disc" class="text-[11px] line-through mut leading-none">{{m(p.price)}}</p>
+                <p class="text-[15px] font-bold leading-tight" :style="{color:'var(--c-primary)'}">{{m(pr(p))}}</p></div>
+              <span class="text-[10px] font-medium mut truncate shrink-0 pb-0.5">{{p.cat}}</span></div></div>
+        </button></div>
+      <div v-if="!list.length" class="py-20 text-center">
+        <span class="w-14 h-14 mx-auto mb-4 sub mut flex items-center justify-center" :style="{borderRadius:'var(--r2xl)'}"><Icon n="search" c="w-6 h-6"/></span>
+        <p class="text-sm font-medium hd">No products found</p><p class="text-xs mut mt-1">Try a different search term or category.</p></div></div></section>
+
+  <aside class="xl:w-[380px] shrink-0" :class="sheet?'fixed inset-0 z-40 p-3 bg-slate-900/50 backdrop-blur-sm flex':'hidden xl:flex'">
+    <div class="card flex flex-col h-full w-full overflow-hidden shadow-lg">
+      <div class="px-4 py-3.5 border-b bd flex items-center justify-between">
+        <div class="flex items-center gap-2"><span class="w-8 h-8 flex items-center justify-center" :style="{background:'color-mix(in srgb,var(--c-primary) 12%,transparent)',color:'var(--c-primary)',borderRadius:'var(--rlg)'}"><Icon n="cart" c="w-4 h-4"/></span>
+          <h3 class="font-semibold hd">Current order</h3>
+          <span v-if="count" class="px-2 py-0.5 text-xs font-bold" :style="{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--rlg)'}">{{count}}</span></div>
+        <div class="flex gap-1"><button v-if="cart.items.length" class="ib" @click="cart.items=[]"><Icon n="trash" c="w-4 h-4"/></button>
+          <button class="xl:hidden ib" @click="sheet=false"><Icon n="x" c="w-4 h-4"/></button></div></div>
+
+      <div class="px-4 py-3 border-b bd"><select class="field"><option>Walk-in customer</option><option>Sophea Chan</option><option>Dara Kim</option></select></div>
+
+      <div class="grow overflow-y-auto p-3 space-y-2">
+        <div v-if="!cart.items.length" class="py-16 text-center mut">
+          <Icon n="cart" c="w-12 h-12 mx-auto mb-3 opacity-25"/><p class="text-sm font-medium">Cart is empty</p>
+          <p class="text-xs mt-1">Tap a product to add it</p></div>
+        <div v-for="i in cart.items" :key="i.id" class="flex gap-3 p-2.5" :style="{background:i.disc?'color-mix(in srgb,var(--c-primary) 7%,transparent)':'var(--c-sub)',borderRadius:'var(--rxl)'}">
+          <img :src="i.img" class="w-12 h-12 object-cover shrink-0" :style="{borderRadius:'var(--rlg)'}"/>
+          <div class="min-w-0 grow">
+            <div class="flex items-start justify-between gap-2"><p class="text-sm font-medium hd line-clamp-1">{{i.name}}</p>
+              <button class="mut hover:text-rose-500" @click="rm(i)"><Icon n="x" c="w-3.5 h-3.5"/></button></div>
+            <p class="text-xs flex items-center gap-1.5">
+              <span v-if="i.disc" class="line-through mut">{{m(i.price)}}</span>
+              <span class="font-semibold" :style="{color:'var(--c-text)'}">{{m(pr(i))}}</span>
+              <span v-if="i.disc" class="font-bold" :style="{color:'var(--c-danger)'}">−{{i.disc}}%</span></p>
+            <div class="flex items-center justify-between mt-1.5">
+              <div class="flex items-center gap-1">
+                <button class="w-7 h-7 border bd flex items-center justify-center" :style="{borderRadius:'var(--rlg)',background:'var(--c-card)'}" @click="i.qty>1?i.qty--:rm(i)"><Icon n="minus" c="w-3.5 h-3.5"/></button>
+                <span class="w-8 text-center text-sm font-bold hd">{{i.qty}}</span>
+                <button class="w-7 h-7 border bd flex items-center justify-center" :style="{borderRadius:'var(--rlg)',background:'var(--c-card)'}" @click="i.qty++"><Icon n="plus" c="w-3.5 h-3.5"/></button></div>
+              <span class="text-sm font-bold hd">{{m(pr(i)*i.qty)}}</span></div></div></div></div>
+
+      <div class="border-t bd p-4 space-y-2.5 shrink-0 sub">
+        <div class="flex justify-between text-sm"><span class="mut">Subtotal</span><span class="font-medium" :style="{color:'var(--c-text)'}">{{m(sub)}}</span></div>
+        <div v-if="disc>0" class="flex justify-between text-sm"><span class="mut">Discount</span><span class="font-medium" :style="{color:'var(--c-danger)'}">−{{m(disc)}}</span></div>
+        <div class="flex justify-between text-sm"><span class="mut">Tax (8.5%)</span><span class="font-medium" :style="{color:'var(--c-text)'}">{{m(tax)}}</span></div>
+        <div class="flex justify-between items-center pt-2.5 border-t border-dashed bd">
+          <span class="font-semibold hd">Grand total</span><span class="text-2xl font-bold" :style="{color:'var(--c-primary)'}">{{m(total)}}</span></div>
+        <button class="btn btn-p w-full py-3.5 text-base" :disabled="!cart.items.length" :class="!cart.items.length?'opacity-40':''" @click="pay"><Icon n="check" c="w-5 h-5"/>Checkout</button></div></div></aside>
+
+  <button v-if="!sheet" class="xl:hidden fixed bottom-20 left-4 right-4 z-30 px-5 py-4 flex items-center justify-between shadow-xl"
+    :style="{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--r2xl)'}" @click="sheet=true">
+    <span class="flex items-center gap-2 font-semibold"><Icon n="cart"/>{{count}} items</span>
+    <span class="font-bold text-lg">{{m(total)}}</span></button>
+
+  <transition name="fade"><div v-if="paid" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="paid=false"></div>
+    <div class="relative card w-full max-w-sm p-6 text-center">
+      <span class="w-16 h-16 mx-auto rounded-full flex items-center justify-center" :style="{background:'color-mix(in srgb,var(--c-success) 16%,transparent)',color:'var(--c-success)'}"><Icon n="check" c="w-8 h-8"/></span>
+      <h3 class="mt-4 text-xl font-bold hd">Payment successful</h3>
+      <p class="text-sm mut mt-1">Order ORD-2415 completed</p>
+      <p class="mt-4 text-3xl font-bold" :style="{color:'var(--c-primary)'}">{{m(lastTotal)}}</p>
+      <div class="mt-5 grid grid-cols-2 gap-2"><button class="btn btn-s"><Icon n="print" c="w-4 h-4"/>Print</button>
+        <button class="btn btn-s"><Icon n="down" c="w-4 h-4"/>Download</button></div>
+      <button class="btn btn-p w-full mt-2" @click="paid=false"><Icon n="plus" c="w-4 h-4"/>New sale</button></div></div></transition></div>`,
+ setup(){const q=ref(''),cat=ref('All'),sheet=ref(false),paid=ref(false),lastTotal=ref(0);
+  const list=computed(()=>PRODUCTS.filter(p=>(cat.value==='All'||p.cat===cat.value)&&
+    (!q.value||p.name.toLowerCase().includes(q.value.toLowerCase())||p.sku.toLowerCase().includes(q.value.toLowerCase()))));
+  const add=p=>{const e=cart.items.find(i=>i.id===p.id);if(e)e.qty++;else cart.items.push({...p,qty:1});toast(p.name+' added')};
+  const rm=i=>cart.items.splice(cart.items.indexOf(i),1);
+  const pay=()=>{lastTotal.value=total.value;paid.value=true;sheet.value=false;cart.items=[];toast('Payment successful')};
+  return{q,cat,cats:CATS,list,add,rm,cart,sub,disc:discT,tax,total,count,m:money,pr:priceOf,sheet,pay,paid,lastTotal}}};
+
+const MANY=Array.from({length:124},(_,i)=>{const b=PRODUCTS[i%PRODUCTS.length];
+  return{...b,id:1000+i,name:b.name+(i>=PRODUCTS.length?' · Variant '+(Math.floor(i/PRODUCTS.length)+1):''),
+    sku:'SKU-'+(2000+i),stock:(b.stock+i*3)%140,price:+(b.price+(i%7)*0.45).toFixed(2)}});
+
+const Products={components:{Badge,Icon,Pagination,FilterPanel,Confirm},
+ template:`<div>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 mb-6 border-b bd">
+    <div><h1 class="text-xl sm:text-[22px] font-bold hd tracking-tight">Products</h1>
+      <p class="text-sm mut mt-0.5">{{filtered.length}} of {{all.length}} products</p></div>
+    <div class="flex gap-2"><button class="btn btn-s" @click="load"><Icon n="down" c="w-4 h-4"/>Export</button>
+      <button class="btn btn-p"><Icon n="plus" c="w-4 h-4"/>Add product</button></div></div>
+
+  <div class="card overflow-hidden">
+    <div class="px-4 py-3.5 border-b bd flex flex-col gap-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <h3 class="font-semibold hd">Product catalogue</h3>
+        <transition enter-active-class="transition duration-200" enter-from-class="opacity-0 -translate-x-2" leave-active-class="transition duration-150" leave-to-class="opacity-0 -translate-x-2">
+          <div v-if="sel.length" class="flex items-center gap-2 pl-3 pr-1.5 py-1.5" :style="{background:'color-mix(in srgb,var(--c-primary) 10%,transparent)',borderRadius:'var(--rxl)'}">
+            <span class="text-xs font-bold tabular-nums" :style="{color:'var(--c-primary)'}">{{sel.length}} selected</span>
+            <button class="inline-flex items-center gap-1.5 h-7 px-2.5 text-white text-xs font-semibold transition active:scale-[.97]"
+              :style="{background:'var(--c-danger)',borderRadius:'var(--rlg)'}" @click="confirmOpen=true"><Icon n="trash" c="w-3.5 h-3.5"/>Delete</button>
+            <button class="p-1 mut" @click="sel=[]"><Icon n="x" c="w-3.5 h-3.5"/></button></div></transition>
+        <div class="ml-auto flex gap-1 p-1 sub" :style="{borderRadius:'var(--rxl)'}">
+          <button class="px-3 py-1.5 text-sm font-medium" :style="view==='t'?act:{color:'var(--c-muted)'}" @click="view='t'">Table</button>
+          <button class="px-3 py-1.5 text-sm font-medium" :style="view==='c'?act:{color:'var(--c-muted)'}" @click="view='c'">Cards</button></div></div>
+
+      <FilterPanel v-model:open="fOpen" :active-count="activeCount" @reset="reset">
+        <template #search><div class="relative"><Icon n="search" c="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 mut"/>
+          <input v-model="q" class="field pl-10" placeholder="Search name or SKU…"/></div></template>
+        <div><label class="lbl">Category</label><select v-model="cat" class="field"><option v-for="c in cats" :key="c">{{c}}</option></select></div>
+        <div><label class="lbl">Status</label><select v-model="st" class="field"><option>All</option><option>Active</option><option>Inactive</option></select></div>
+        <div><label class="lbl">Stock</label><select v-model="stk" class="field"><option>All</option><option>In stock</option><option>Low stock</option><option>Out of stock</option></select></div>
+      </FilterPanel></div>
+
+    <!-- table -->
+    <div v-if="view==='t'" class="overflow-x-auto"><table class="w-full text-sm min-w-[900px] border-separate border-spacing-0">
+      <thead class="sticky top-0 z-10"><tr>
+        <th class="sub w-12 px-4 py-3 border-b bd"><input type="checkbox" class="w-4 h-4 rounded align-middle" :style="{accentColor:'var(--c-primary)'}" :checked="allSel" @change="toggleAll"/></th>
+        <th v-for="h in cols" :key="h[0]" class="sub px-5 py-3 text-[11px] font-semibold uppercase tracking-wider mut text-left border-b bd whitespace-nowrap"
+          :class="h[1]?'cursor-pointer':''" @click="h[1]&&sort(h[0])">
+          <span class="inline-flex items-center gap-1.5">{{h[2]}}
+            <Icon v-if="h[1]" :n="sk===h[0]&&sd==='desc'?'down':'up'" c="w-3 h-3" :style="{opacity:sk===h[0]?1:.25,color:sk===h[0]?'var(--c-primary)':''}"/></span></th></tr></thead>
+      <tbody>
+        <tr v-if="loading" v-for="n in 6" :key="'s'+n">
+          <td class="px-4 py-3.5 border-b bd"><span class="block w-4 h-4 rounded sub animate-pulse"></span></td>
+          <td v-for="h in cols" :key="'s'+n+h[0]" class="px-5 py-3.5 border-b bd"><span class="block h-3.5 rounded sub animate-pulse" :style="{width:(45+(n*13)%45)+'%'}"></span></td></tr>
+        <tr v-else v-for="p in rows" :key="p.id" class="transition-colors" :style="sel.includes(p.id)?{background:'color-mix(in srgb,var(--c-primary) 6%,transparent)'}:{}">
+          <td class="px-4 py-3 border-b bd"><input type="checkbox" class="w-4 h-4 rounded align-middle" :style="{accentColor:'var(--c-primary)'}" :checked="sel.includes(p.id)" @change="toggle(p.id)"/></td>
+          <td class="px-5 py-3 border-b bd"><div class="flex items-center gap-3"><img :src="p.img" class="w-10 h-10 object-cover shrink-0" :style="{borderRadius:'var(--rlg)'}"/>
+            <div class="min-w-0"><p class="font-medium hd truncate">{{p.name}}</p><p class="text-xs mut font-mono">{{p.sku}}</p></div></div></td>
+          <td class="px-5 py-3 border-b bd mut">{{p.cat}}</td>
+          <td class="px-5 py-3 border-b bd"><span v-if="p.disc" class="line-through mut text-xs mr-1">{{m(p.price)}}</span><span class="font-semibold hd">{{m(pr(p))}}</span></td>
+          <td class="px-5 py-3 border-b bd"><span class="font-semibold" :style="{color:p.stock<=0?'var(--c-danger)':p.stock<=10?'var(--c-warning)':'var(--c-text)'}">{{p.stock}}</span></td>
+          <td class="px-5 py-3 border-b bd"><Badge :t="p.stock>0?'Active':'Disabled'">{{p.stock>0?'Active':'Inactive'}}</Badge></td>
+          <td class="px-5 py-3 border-b bd"><div class="flex gap-1 justify-end"><button class="ib"><Icon n="eye" c="w-4 h-4"/></button><button class="ib"><Icon n="edit" c="w-4 h-4"/></button></div></td></tr>
+        <tr v-if="!loading&&!rows.length"><td colspan="7" class="px-5 py-20 text-center">
+          <span class="w-14 h-14 mx-auto mb-4 sub mut flex items-center justify-center" :style="{borderRadius:'var(--r2xl)'}"><Icon n="box" c="w-6 h-6"/></span>
+          <p class="text-sm font-medium hd">No products found</p><p class="text-xs mut mt-1">Try adjusting your search or filters.</p></td></tr></tbody></table></div>
+
+    <!-- cards -->
+    <div v-else class="p-4 grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+      <div v-for="p in rows" :key="p.id" class="card card-h p-4 min-h-[158px] flex flex-col">
+        <div class="flex gap-3"><img :src="p.img" class="w-16 h-16 object-cover shrink-0" :style="{borderRadius:'var(--rxl)'}"/>
+          <div class="min-w-0 grow"><p class="font-semibold hd line-clamp-2 leading-snug">{{p.name}}</p>
+            <p class="text-xs mut font-mono mt-0.5">{{p.sku}}</p><Badge :t="p.stock>0?'Active':'Disabled'" class="mt-1.5">{{p.stock>0?'Active':'Inactive'}}</Badge></div></div>
+        <div class="mt-auto pt-3 grid grid-cols-3 gap-2 text-center">
+          <div class="sub py-2" :style="{borderRadius:'var(--rlg)'}"><p class="text-[10px] mut">Price</p><p class="text-sm font-bold" :style="{color:'var(--c-primary)'}">{{m(pr(p))}}</p></div>
+          <div class="sub py-2" :style="{borderRadius:'var(--rlg)'}"><p class="text-[10px] mut">Category</p><p class="text-xs font-bold hd truncate">{{p.cat}}</p></div>
+          <div class="sub py-2" :style="{borderRadius:'var(--rlg)'}"><p class="text-[10px] mut">Stock</p><p class="text-sm font-bold hd">{{p.stock}}</p></div></div></div></div>
+
+    <Pagination :page="page" :per-page="per" :total="filtered.length" :last-page="lastPage" :from="from" :to="to"
+      label="products" @update:page="page=$event" @update:per-page="per=$event;page=1"/></div>
+
+  <Confirm :open="confirmOpen" title="Delete selected products?" :count="sel.length"
+    message="The selected products will be permanently removed from your catalogue."
+    :confirm-label="'Delete '+sel.length" @close="confirmOpen=false" @confirm="doDelete"/></div>`,
+ setup(){
+  const q=ref(''),cat=ref('All'),st=ref('All'),stk=ref('All'),view=ref('t'),fOpen=ref(false);
+  const page=ref(1),per=ref(10),sel=ref([]),confirmOpen=ref(false),loading=ref(false);
+  const sk=ref(''),sd=ref('asc');
+  const all=ref([...MANY]);
+  const cols=[['name',true,'Product'],['cat',true,'Category'],['price',true,'Price'],['stock',true,'Stock'],['status',false,'Status'],['',false,'']];
+
+  const filtered=computed(()=>{let r=all.value.filter(p=>
+    (cat.value==='All'||p.cat===cat.value)&&
+    (st.value==='All'||(st.value==='Active'?p.stock>0:p.stock<=0))&&
+    (stk.value==='All'||(stk.value==='In stock'?p.stock>10:stk.value==='Low stock'?p.stock>0&&p.stock<=10:p.stock<=0))&&
+    (!q.value||p.name.toLowerCase().includes(q.value.toLowerCase())||p.sku.toLowerCase().includes(q.value.toLowerCase())));
+    if(sk.value){const d=sd.value==='asc'?1:-1;r=[...r].sort((a,b)=>{const x=a[sk.value],y=b[sk.value];
+      return typeof x==='number'?(x-y)*d:String(x).localeCompare(String(y))*d})}
+    return r});
+
+  const lastPage=computed(()=>Math.max(1,Math.ceil(filtered.value.length/per.value)));
+  const rows=computed(()=>filtered.value.slice((page.value-1)*per.value,page.value*per.value));
+  const from=computed(()=>filtered.value.length?(page.value-1)*per.value+1:0);
+  const to=computed(()=>Math.min(page.value*per.value,filtered.value.length));
+  // reset to page 1 whenever search / filters change
+  watch([q,cat,st,stk],()=>page.value=1);
+  watch(lastPage,v=>{if(page.value>v)page.value=v});
+
+  const allSel=computed(()=>rows.value.length&&rows.value.every(r=>sel.value.includes(r.id)));
+  const toggleAll=()=>{const ids=rows.value.map(r=>r.id);
+    sel.value=allSel.value?sel.value.filter(i=>!ids.includes(i)):[...new Set([...sel.value,...ids])]};
+  const toggle=id=>sel.value=sel.value.includes(id)?sel.value.filter(i=>i!==id):[...sel.value,id];
+  const doDelete=()=>{all.value=all.value.filter(p=>!sel.value.includes(p.id));
+    toast(sel.value.length+' products deleted');sel.value=[];confirmOpen.value=false};
+  const sort=k=>{if(sk.value===k)sd.value=sd.value==='asc'?'desc':'asc';else{sk.value=k;sd.value='asc'}};
+  const reset=()=>{q.value='';cat.value='All';st.value='All';stk.value='All'};
+  const activeCount=computed(()=>[cat.value,st.value,stk.value].filter(v=>v!=='All').length);
+  const load=()=>{loading.value=true;setTimeout(()=>{loading.value=false;toast('Exported '+filtered.value.length+' products')},900)};
+  const act={background:'var(--c-card)',color:'var(--c-primary)',borderRadius:'var(--rlg)',boxShadow:'0 1px 2px rgb(0 0 0/.08)'};
+  return{q,cat,st,stk,view,fOpen,page,per,sel,confirmOpen,loading,sk,sd,all,cols,filtered,rows,lastPage,from,to,
+    allSel,toggleAll,toggle,doDelete,sort,reset,activeCount,load,cats:CATS,m:money,pr:priceOf,act}}};
+
+const Orders={components:{Badge,Icon},
+ template:`<div>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 mb-6 border-b bd">
+    <div><h1 class="text-xl sm:text-[22px] font-bold hd tracking-tight">Orders</h1><p class="text-sm mut mt-0.5">{{list.length}} orders found</p></div>
+    <div class="flex gap-2"><button class="btn btn-s">Last 30 days</button><button class="btn btn-s"><Icon n="down" c="w-4 h-4"/>Export</button></div></div>
+
+  <div class="card overflow-hidden">
+    <div class="p-4 border-b bd grid sm:grid-cols-3 gap-3">
+      <div class="relative"><Icon n="search" c="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 mut"/>
+        <input v-model="q" class="field pl-10" placeholder="Order ID or customer…"/></div>
+      <select v-model="st" class="field"><option>All</option><option>Paid</option><option>Pending</option><option>Refunded</option><option>Cancelled</option></select>
+      <select v-model="pm" class="field"><option>All</option><option>Cash</option><option>KHQR</option><option>Card</option><option>Bank Transfer</option></select></div>
+    <div class="overflow-x-auto"><table class="w-full text-sm min-w-[760px]">
+      <thead><tr class="sub"><th v-for="h in ['Order ID','Customer','Date','Items','Payment','Status','Total']" :key="h"
+        class="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider mut" :class="h==='Total'?'text-right':'text-left'">{{h}}</th></tr></thead>
+      <tbody><tr v-for="o in list" :key="o.id" class="border-t bd hover:bg-black/[.02] cursor-pointer" @click="sel=o">
+        <td class="px-5 py-3 font-semibold hd">{{o.id}}</td><td class="px-5 py-3 mut">{{o.cust}}</td>
+        <td class="px-5 py-3 mut">{{o.date}}</td><td class="px-5 py-3 mut">{{o.items}}</td>
+        <td class="px-5 py-3 mut">{{o.method}}</td><td class="px-5 py-3"><Badge :t="o.status"/></td>
+        <td class="px-5 py-3 text-right font-semibold hd">{{m(o.total)}}</td></tr></tbody></table>
+      <p v-if="!list.length" class="text-center py-16 mut text-sm">No orders match the filters.</p></div></div>
+
+  <transition name="fade"><div v-if="sel" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="sel=null"></div>
+    <div class="relative card w-full sm:max-w-lg max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between px-5 py-4 border-b bd"><h3 class="font-semibold hd">Order {{sel.id}}</h3>
+        <button class="ib" @click="sel=null"><Icon n="x" c="w-4 h-4"/></button></div>
+      <div class="p-5 overflow-y-auto">
+        <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+          <div><p class="text-xs mut">Customer</p><p class="font-semibold hd">{{sel.cust}}</p></div>
+          <div><p class="text-xs mut">Date</p><p class="font-semibold hd">{{sel.date}}</p></div>
+          <div><p class="text-xs mut">Payment</p><p class="font-semibold hd">{{sel.method}}</p></div>
+          <div><p class="text-xs mut">Status</p><Badge :t="sel.status"/></div></div>
+        <div class="border bd overflow-hidden" :style="{borderRadius:'var(--rxl)'}">
+          <div v-for="(p,i) in PRODUCTS.slice(0,sel.items)" :key="i" class="flex items-center gap-3 px-4 py-2.5" :class="i?'border-t bd':''">
+            <img :src="p.img" class="w-9 h-9 object-cover" :style="{borderRadius:'var(--rlg)'}"/>
+            <div class="grow min-w-0"><p class="text-sm font-medium hd truncate">{{p.name}}</p><p class="text-xs mut">1 × {{m(p.price)}}</p></div>
+            <span class="text-sm font-semibold hd">{{m(p.price)}}</span></div></div>
+        <div class="mt-4 space-y-1.5 text-sm">
+          <div class="flex justify-between"><span class="mut">Subtotal</span><span class="hd">{{m(sel.total*.92)}}</span></div>
+          <div class="flex justify-between"><span class="mut">Tax</span><span class="hd">{{m(sel.total*.08)}}</span></div>
+          <div class="flex justify-between pt-2 border-t border-dashed bd"><span class="font-semibold hd">Total</span>
+            <span class="font-bold text-lg" :style="{color:'var(--c-primary)'}">{{m(sel.total)}}</span></div></div></div>
+      <div class="px-5 py-4 border-t bd flex gap-2"><button class="btn btn-s flex-1" @click="sel=null">Close</button>
+        <button class="btn btn-p flex-1"><Icon n="print" c="w-4 h-4"/>Print receipt</button></div></div></div></transition></div>`,
+ setup(){const q=ref(''),st=ref('All'),pm=ref('All'),sel=ref(null);
+  const list=computed(()=>ORDERS.filter(o=>(st.value==='All'||o.status===st.value)&&(pm.value==='All'||o.method===pm.value)&&
+    (!q.value||o.id.toLowerCase().includes(q.value.toLowerCase())||o.cust.toLowerCase().includes(q.value.toLowerCase()))));
+  return{q,st,pm,list,sel,m:money,PRODUCTS}}};
+
+const Discounts={components:{Badge,Icon,Stat},
+ template:`<div>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 mb-6 border-b bd">
+    <div class="flex items-center gap-3"><span class="w-10 h-10 flex items-center justify-center" :style="{background:'color-mix(in srgb,var(--c-primary) 12%,transparent)',color:'var(--c-primary)',borderRadius:'var(--rxl)'}"><Icon n="spark"/></span>
+      <div><h1 class="text-xl sm:text-[22px] font-bold hd tracking-tight">Discounts</h1><p class="text-sm mut mt-0.5">{{list.length}} of 6 campaigns</p></div></div>
+    <div class="flex gap-2"><button class="btn btn-s"><Icon n="down" c="w-4 h-4"/>Export</button>
+      <button class="btn btn-p"><Icon n="plus" c="w-4 h-4"/>Create discount</button></div></div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+    <Stat label="Active discounts" val="3" icon="spark" tone="g"/><Stat label="Scheduled" val="1" icon="clip" tone="s"/>
+    <Stat label="Expired" val="1" icon="alert" tone="w"/><Stat label="Total" val="6" icon="tag"/></div>
+
+  <div class="card overflow-hidden">
+    <div class="p-4 border-b bd flex flex-col sm:flex-row gap-3">
+      <div class="relative grow"><Icon n="search" c="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 mut"/>
+        <input v-model="q" class="field pl-10" placeholder="Search name, code or category…"/></div>
+      <select v-model="st" class="field sm:w-44"><option>All</option><option>Active</option><option>Scheduled</option><option>Expired</option><option>Disabled</option></select></div>
+
+    <div class="hidden md:block overflow-x-auto"><table class="w-full text-sm min-w-[860px]">
+      <thead><tr class="sub"><th v-for="h in ['Discount','Type','Value','Applies to','Schedule','Status','']" :key="h"
+        class="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider mut text-left">{{h}}</th></tr></thead>
+      <tbody><tr v-for="d in list" :key="d.id" class="border-t bd hover:bg-black/[.02]">
+        <td class="px-5 py-3"><div class="flex items-center gap-3">
+          <span class="w-9 h-9 flex items-center justify-center shrink-0" :style="{background:'color-mix(in srgb,var(--c-primary) 12%,transparent)',color:'var(--c-primary)',borderRadius:'var(--rxl)'}"><Icon n="spark" c="w-4 h-4"/></span>
+          <div><p class="font-medium hd">{{d.name}}</p><p class="text-xs mut font-mono">{{d.code||'Automatic'}}</p></div></div></td>
+        <td class="px-5 py-3 mut">{{d.type==='%'?'Percentage':'Fixed'}}</td>
+        <td class="px-5 py-3 font-bold" :style="{color:'var(--c-primary)'}">{{d.type==='%'?d.val+'% OFF':m(d.val)+' OFF'}}</td>
+        <td class="px-5 py-3 mut">{{d.to}}</td><td class="px-5 py-3 mut">{{d.range}}</td>
+        <td class="px-5 py-3"><Badge :t="d.status"/></td>
+        <td class="px-5 py-3"><div class="flex gap-1 justify-end"><button class="ib"><Icon n="eye" c="w-4 h-4"/></button>
+          <button class="ib"><Icon n="edit" c="w-4 h-4"/></button><button class="ib" style="color:var(--c-danger)"><Icon n="trash" c="w-4 h-4"/></button></div></td></tr></tbody></table></div>
+
+    <div class="md:hidden p-4 grid sm:grid-cols-2 gap-3">
+      <div v-for="d in list" :key="d.id" class="card p-4">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0"><span class="w-9 h-9 flex items-center justify-center shrink-0" :style="{background:'color-mix(in srgb,var(--c-primary) 12%,transparent)',color:'var(--c-primary)',borderRadius:'var(--rxl)'}"><Icon n="spark" c="w-4 h-4"/></span>
+            <div class="min-w-0"><p class="font-semibold hd truncate">{{d.name}}</p>
+              <p class="text-xs font-bold" :style="{color:'var(--c-primary)'}">{{d.type==='%'?d.val+'% OFF':m(d.val)+' OFF'}}</p></div></div>
+          <Badge :t="d.status"/></div>
+        <dl class="mt-3 space-y-1.5 text-xs"><div class="flex justify-between"><dt class="mut">Applies to</dt><dd class="hd">{{d.to}}</dd></div>
+          <div class="flex justify-between"><dt class="mut">Schedule</dt><dd class="hd">{{d.range}}</dd></div></dl>
+        <div class="mt-3 flex gap-1.5"><button class="btn btn-s flex-1 text-xs py-1.5"><Icon n="eye" c="w-3.5 h-3.5"/>View</button>
+          <button class="btn btn-s flex-1 text-xs py-1.5"><Icon n="edit" c="w-3.5 h-3.5"/>Edit</button></div></div></div></div></div>`,
+ setup(){const q=ref(''),st=ref('All');
+  const list=computed(()=>DISCOUNTS.filter(d=>(st.value==='All'||d.status===st.value)&&
+    (!q.value||(d.name+d.code+d.to).toLowerCase().includes(q.value.toLowerCase()))));
+  return{q,st,list,m:money}}};
+
+const Settings={components:{Icon},
+ template:`<div class="max-w-5xl">
+  <div class="pb-5 mb-6 border-b bd"><h1 class="text-xl sm:text-[22px] font-bold hd tracking-tight">Settings</h1>
+    <p class="text-sm mut mt-0.5">Appearance, branding and localization</p></div>
+
+  <div class="grid lg:grid-cols-[220px_1fr] gap-5">
+    <nav class="card p-2 h-fit flex lg:block gap-1 overflow-x-auto no-sb">
+      <button v-for="t in tabs" :key="t[0]" class="w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium text-left whitespace-nowrap transition"
+        :style="tab===t[0]?{background:'color-mix(in srgb,var(--c-primary) 11%,transparent)',color:'var(--c-primary)',borderRadius:'var(--rxl)'}:{color:'var(--c-text)',borderRadius:'var(--rxl)'}"
+        @click="tab=t[0]"><Icon :n="t[2]" c="w-4 h-4"/>{{t[1]}}</button></nav>
+
+    <div class="space-y-5">
+      <template v-if="tab==='appearance'">
+        <section class="card p-5">
+          <h3 class="font-semibold hd mb-1">Theme mode</h3><p class="text-xs mut mb-4">Your brand colour stays identical in both modes.</p>
+          <div class="flex gap-1 p-1 sub w-full sm:w-auto sm:inline-flex" :style="{borderRadius:'var(--rxl)'}">
+            <button v-for="md in modes" :key="md[0]" class="flex-1 sm:flex-none px-4 py-2 text-sm font-medium flex items-center justify-center gap-1.5"
+              :style="theme.mode===md[0]?{background:'var(--c-card)',color:'var(--c-primary)',borderRadius:'var(--rlg)',boxShadow:'0 1px 2px rgb(0 0 0/.08)'}:{color:'var(--c-muted)'}"
+              @click="theme.mode=md[0]"><Icon :n="md[2]" c="w-4 h-4"/>{{md[1]}}</button></div></section>
+
+        <section class="card p-5">
+          <h3 class="font-semibold hd mb-1">Theme presets</h3><p class="text-xs mut mb-4">Apply a professional palette instantly.</p>
+          <div class="overflow-x-auto no-sb -mx-1 px-1"><div class="flex gap-3 min-w-max pb-1">
+            <button v-for="p in presets" :key="p.id" class="w-[128px] shrink-0 p-3 text-left border-2 transition hover:-translate-y-0.5"
+              :style="{borderRadius:'var(--r2xl)',borderColor:theme.preset===p.id?'var(--c-primary)':'var(--c-border)'}" @click="setPreset(p)">
+              <div class="flex gap-1"><span v-for="c in [p.p,p.s,p.a]" :key="c" class="h-8 flex-1" :style="{background:c,borderRadius:'var(--rlg)'}"></span></div>
+              <p class="mt-2.5 text-xs font-semibold hd flex items-center gap-1">{{p.name}}
+                <Icon v-if="theme.preset===p.id" n="check" c="w-3.5 h-3.5 ml-auto" :style="{color:'var(--c-primary)'}"/></p></button></div></div></section>
+
+        <section class="card p-5 space-y-4">
+          <h3 class="font-semibold hd">Brand colours</h3>
+          <div v-for="f in fields" :key="f[0]" class="flex items-center gap-3 py-1">
+            <label class="relative w-10 h-10 shrink-0 border bd overflow-hidden cursor-pointer" :style="{background:theme[f[0]],borderRadius:'var(--rxl)'}">
+              <input type="color" class="absolute inset-0 opacity-0 cursor-pointer" :value="theme[f[0]]" @input="set(f[0],$event.target.value)"/></label>
+            <div class="min-w-0 grow"><p class="text-sm font-medium hd">{{f[1]}}</p><p class="text-[11px] mut">{{theme[f[0]]}}</p></div>
+            <input class="field w-[104px] py-1.5 text-xs font-mono uppercase text-center" :value="theme[f[0]]" @change="set(f[0],$event.target.value)"/></div></section>
+
+        <section class="card p-5">
+          <h3 class="font-semibold hd mb-4">Shape</h3>
+          <p class="lbl">Border radius</p>
+          <div class="flex flex-wrap gap-1.5 mb-5"><button v-for="r in radii" :key="r[0]" class="px-3 py-2 text-xs font-semibold border-2 transition"
+            :style="{borderRadius:'var(--rxl)',borderColor:theme.radius===r[0]?'var(--c-primary)':'var(--c-border)',color:theme.radius===r[0]?'var(--c-primary)':'var(--c-text)'}"
+            @click="theme.radius=r[0]">{{r[1]}}</button></div>
+          <p class="lbl">Button style</p>
+          <div class="flex flex-wrap gap-1.5"><button v-for="b in btns" :key="b[0]" class="px-4 py-2 text-xs font-semibold border-2 transition"
+            :style="{borderRadius:b[2],borderColor:theme.btn===b[0]?'var(--c-primary)':'var(--c-border)',color:theme.btn===b[0]?'var(--c-primary)':'var(--c-text)'}"
+            @click="theme.btn=b[0]">{{b[1]}}</button></div></section>
+      </template>
+
+      <template v-else>
+        <section class="card p-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div><h3 class="font-semibold hd">Currency</h3><p class="text-xs mut mt-0.5">Display currency used across the system.</p></div></div>
+          <div class="space-y-2">
+            <button v-for="c in curList" :key="c.code" class="w-full flex items-center gap-3 px-4 py-3 border-2 text-left transition"
+              :style="{borderRadius:'var(--r2xl)',borderColor:cur.code===c.code?'var(--c-primary)':'var(--c-border)',background:cur.code===c.code?'color-mix(in srgb,var(--c-primary) 7%,transparent)':''}"
+              @click="cur.code=c.code">
+              <span class="text-2xl leading-none">{{c.flag}}</span>
+              <span class="min-w-0 grow"><span class="block text-sm font-semibold" :style="{color:cur.code===c.code?'var(--c-primary)':'var(--c-head)'}">{{c.code}} — {{c.name}}</span>
+                <span class="block text-xs mut">Symbol {{c.sym}} · {{c.code==='USD'?'Base currency':'1 USD ≈ 4,100 KHR'}}</span></span>
+              <Icon v-if="cur.code===c.code" n="check" c="w-5 h-5" :style="{color:'var(--c-primary)'}"/></button></div>
+
+          <div class="mt-4 p-4 sub" :style="{borderRadius:'var(--r2xl)'}">
+            <p class="text-xs font-bold uppercase tracking-wider mut mb-2">Preview</p>
+            <div class="grid sm:grid-cols-3 gap-3">
+              <div><p class="text-xs mut">Product price</p><p class="font-bold hd">{{m(2.5)}}</p></div>
+              <div><p class="text-xs mut">Order total</p><p class="font-bold hd">{{m(48.9)}}</p></div>
+              <div><p class="text-xs mut">Monthly revenue</p><p class="font-bold hd">{{m(12480)}}</p></div></div></div></section>
+      </template>
+    </div></div></div>`,
+ setup(){const tab=ref('appearance');
+  const setPreset=p=>{theme.preset=p.id;theme.primary=p.p;theme.secondary=p.s;theme.accent=p.a;toast(p.name+' theme applied')};
+  const set=(k,v)=>{if(/^#[0-9a-f]{6}$/i.test(v)){theme[k]=v;theme.preset='custom'}};
+  return{tab,theme,cur,curList:CUR,m:money,presets:PRESETS,setPreset,set,
+    tabs:[['appearance','Appearance','pal'],['localization','Localization','store']],
+    modes:[['light','Light','sun'],['dark','Dark','moon'],['system','System','mon']],
+    fields:[['primary','Primary colour'],['secondary','Secondary colour'],['accent','Accent colour'],['success','Success'],['warning','Warning'],['danger','Danger']],
+    radii:[['sharp','Sharp'],['small','Small'],['medium','Medium'],['large','Large'],['xl','Extra large']],
+    btns:[['square','Square','2px'],['soft','Soft','var(--rxl)'],['rounded','Rounded','9999px']]}}};
+
+const Simple={props:{title:String,sub:String,icon:String},components:{Icon},
+ template:`<div><div class="pb-5 mb-6 border-b bd"><h1 class="text-xl sm:text-[22px] font-bold hd tracking-tight">{{title}}</h1>
+  <p class="text-sm mut mt-0.5">{{sub}}</p></div>
+  <div class="card p-10 text-center"><span class="w-14 h-14 mx-auto flex items-center justify-center" :style="{background:'color-mix(in srgb,var(--c-primary) 12%,transparent)',color:'var(--c-primary)',borderRadius:'var(--r2xl)'}"><Icon :n="icon" c="w-7 h-7"/></span>
+    <h2 class="mt-4 text-lg font-bold hd">{{title}} module</h2>
+    <p class="mt-1.5 text-sm mut max-w-md mx-auto">This screen exists in the full multi-file project (<code class="font-mono text-xs">src/views/</code>). Run <b>npm run dev</b> to explore the complete build.</p></div></div>`};
+
+/* ════════════ I18N ════════════ */
+const LOCALES=[
+  {code:'en',label:'English',native:'English (US)',short:'EN',flag:'🇺🇸'},
+  {code:'km',label:'ភាសាខ្មែរ',native:'Khmer',short:'ខ្មែរ',flag:'🇰🇭'}
+];
+const MSG={
+  en:{signIn:'Sign in',signInSub:'Welcome back. Please sign in to your terminal.',
+    register:'Create account',registerSub:'Start your 14-day free trial.',
+    forgot:'Reset password',forgotSub:'We will send a 6-digit code to your email.',
+    otp:'Verify code',otpSub:'Enter the 6-digit code we sent you.',newPass:'New password',
+    email:'Email address',password:'Password',confirm:'Confirm password',fullName:'Full name',
+    storeName:'Store name',remember:'Remember me',forgotLink:'Forgot password?',
+    noAccount:'Don\\'t have an account?',haveAccount:'Already have an account?',
+    sendCode:'Send code',verify:'Verify',resend:'Resend code',save:'Save',demo:'Quick demo accounts',
+    heroTitle:'Run your whole store from one fast, beautiful system.',
+    heroText:'Sales, inventory, purchasing and reporting in a single clean workspace built for the counter.',
+    f1:'Lightning-fast cashier workflow',f2:'Real-time inventory alerts',
+    f3:'Excel, CSV and PDF reporting',f4:'Multi-currency and KHQR ready',
+    tagline:'Retail Point of Sale',orders:'Orders / mo',uptime:'Uptime',rating:'Rating'},
+  km:{signIn:'ចូលប្រើប្រាស់',signInSub:'សូមស្វាគមន៍ត្រឡប់មកវិញ។ សូមចូលប្រើប្រព័ន្ធ។',
+    register:'បង្កើតគណនី',registerSub:'ចាប់ផ្តើមសាកល្បងឥតគិតថ្លៃ ១៤ ថ្ងៃ។',
+    forgot:'កំណត់ពាក្យសម្ងាត់ឡើងវិញ',forgotSub:'យើងនឹងផ្ញើលេខកូដ ៦ ខ្ទង់ទៅអ៊ីមែលរបស់អ្នក។',
+    otp:'ផ្ទៀងផ្ទាត់លេខកូដ',otpSub:'បញ្ចូលលេខកូដ ៦ ខ្ទង់ដែលយើងបានផ្ញើ។',newPass:'ពាក្យសម្ងាត់ថ្មី',
+    email:'អាសយដ្ឋានអ៊ីមែល',password:'ពាក្យសម្ងាត់',confirm:'បញ្ជាក់ពាក្យសម្ងាត់',fullName:'ឈ្មោះពេញ',
+    storeName:'ឈ្មោះហាង',remember:'ចងចាំខ្ញុំ',forgotLink:'ភ្លេចពាក្យសម្ងាត់?',
+    noAccount:'មិនទាន់មានគណនី?',haveAccount:'មានគណនីរួចហើយ?',
+    sendCode:'ផ្ញើលេខកូដ',verify:'ផ្ទៀងផ្ទាត់',resend:'ផ្ញើម្តងទៀត',save:'រក្សាទុក',demo:'គណនីសាកល្បង',
+    heroTitle:'គ្រប់គ្រងហាងទាំងមូលក្នុងប្រព័ន្ធតែមួយ។',
+    heroText:'ការលក់ ស្តុក ការទិញចូល និងរបាយការណ៍ នៅកន្លែងតែមួយសម្រាប់បញ្ជរគិតលុយ។',
+    f1:'ដំណើរការគិតលុយរហ័ស',f2:'តាមដានស្តុកភ្លាមៗ',
+    f3:'នាំចេញ Excel, CSV និង PDF',f4:'គាំទ្រពហុរូបិយប័ណ្ណ និង KHQR',
+    tagline:'ប្រព័ន្ធលក់ទំនិញ',orders:'ការបញ្ជាទិញ/ខែ',uptime:'ដំណើរការ',rating:'ការវាយតម្លៃ'}
+};
+const locale=ref(localStorage.getItem('novapos-lang')||'en');
+const T=computed(()=>MSG[locale.value]);
+function setLocale(c){locale.value=c;localStorage.setItem('novapos-lang',c);
+  document.documentElement.classList.toggle('km',c==='km');
+  toast(c==='km'?'ប្តូរទៅភាសាខ្មែរ':'Switched to English')}
+document.documentElement.classList.toggle('km',locale.value==='km');
+
+/* ─── Language switcher (segmented + dropdown) ─── */
+const LangSwitch={props:{variant:{type:String,default:'dropdown'}},components:{Icon},
+ template:`<div v-if="variant==='segmented'" class="inline-flex p-1 gap-1 border bd sub" :style="{borderRadius:'var(--rxl)'}" role="group">
+   <button v-for="l in locales" :key="l.code" type="button"
+     class="inline-flex items-center gap-2 px-3 h-9 text-[13px] font-semibold transition-all duration-200"
+     :style="locale===l.code?{background:'var(--c-card)',color:'var(--c-primary)',borderRadius:'var(--rlg)',boxShadow:'0 1px 2px rgb(0 0 0/.08)'}:{color:'var(--c-muted)',borderRadius:'var(--rlg)'}"
+     :aria-pressed="locale===l.code" @click="pick(l.code)">
+     <span class="flagdot">{{l.flag}}</span><span>{{l.short}}</span></button></div>
+
+ <div v-else class="relative">
+   <button type="button" class="inline-flex items-center gap-1.5 border bd px-2.5 py-2 text-sm transition"
+     :style="{borderRadius:'var(--rxl)',background:'var(--c-card)',color:'var(--c-text)'}"
+     :aria-expanded="open" @click="open=!open">
+     <span class="flagdot">{{active.flag}}</span>
+     <span class="hidden sm:inline font-semibold">{{active.short}}</span>
+     <Icon n="chev" c="w-3.5 h-3.5 opacity-60 transition-transform" :class="open?'-rotate-90':'rotate-90'"/></button>
+   <transition name="fade"><div v-if="open" class="absolute right-0 mt-2 w-52 z-50 p-1.5 card shadow-xl">
+     <p class="px-2.5 pt-1.5 pb-2 text-[11px] font-bold uppercase tracking-wider mut">Language</p>
+     <button v-for="l in locales" :key="l.code" class="w-full flex items-center gap-3 px-2.5 py-2.5 text-left transition"
+       :style="{borderRadius:'var(--rxl)',background:locale===l.code?'color-mix(in srgb,var(--c-primary) 11%,transparent)':''}"
+       @click="pick(l.code)">
+       <span class="flagdot" style="width:24px;height:24px;font-size:13px">{{l.flag}}</span>
+       <span class="min-w-0 grow"><span class="block text-sm font-semibold truncate" :style="{color:locale===l.code?'var(--c-primary)':'var(--c-head)'}">{{l.label}}</span>
+         <span class="block text-[11px] mut">{{l.native}}</span></span>
+       <Icon v-if="locale===l.code" n="check" c="w-4 h-4" :style="{color:'var(--c-primary)'}"/></button></div></transition>
+   <div v-if="open" class="fixed inset-0 z-40" @click="open=false"></div></div>`,
+ setup(){const open=ref(false);
+  const active=computed(()=>LOCALES.find(l=>l.code===locale.value));
+  const pick=c=>{open.value=false;if(c!==locale.value)setLocale(c)};
+  return{open,locale,locales:LOCALES,active,pick}}};
+
+/* ════════════ AUTH ════════════ */
+const auth=reactive({user:null});
+const ACCOUNTS=[
+  {email:'admin@novapos.io',name:'Alex Morgan',role:'Owner'},
+  {email:'manager@novapos.io',name:'Sophea Chan',role:'Manager'},
+  {email:'cashier@novapos.io',name:'Dara Kim',role:'Cashier'}
+];
+
+const LoginOld={components:{Icon,CurSwitch},
+ template:`<div class="min-h-full lg:grid lg:grid-cols-[1.05fr_1fr]" :style="{background:'var(--c-bg)'}">
+
+  <!-- LEFT : brand story -->
+  <section class="relative hidden lg:flex flex-col justify-between p-12 xl:p-16 overflow-hidden text-white"
+    :style="{background:'linear-gradient(135deg,'+theme.primary+' 0%,'+mixc(theme.primary,'#000',.28)+' 100%)'}">
+    <div class="absolute -top-28 -right-24 w-[26rem] h-[26rem] rounded-full bg-white/10"></div>
+    <div class="absolute -bottom-32 -left-24 w-[26rem] h-[26rem] rounded-full bg-white/5"></div>
+    <div class="absolute inset-0 opacity-[.07]" style="background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 0);background-size:28px 28px"></div>
+
+    <div class="relative flex items-center gap-3">
+      <span class="w-11 h-11 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center"><Icon n="store" c="w-6 h-6"/></span>
+      <div><p class="text-lg font-bold tracking-tight leading-none">NovaPOS</p>
+        <p class="text-[11px] text-white/70">Retail Point of Sale</p></div></div>
+
+    <div class="relative max-w-lg">
+      <h1 class="text-[40px] xl:text-[44px] font-bold leading-[1.12] tracking-tight">Run your whole store from one fast, beautiful system.</h1>
+      <p class="mt-5 text-white/80 leading-relaxed">Sales, inventory, purchasing, customers and financial reporting in a single clean workspace engineered for speed at the counter.</p>
+      <ul class="mt-8 space-y-3">
+        <li v-for="f in feats" :key="f" class="flex items-center gap-3">
+          <span class="w-6 h-6 rounded-lg bg-white/15 flex items-center justify-center shrink-0"><Icon n="check" c="w-3.5 h-3.5"/></span>
+          <span class="text-sm text-white/90">{{f}}</span></li></ul>
+      <dl class="mt-10 grid grid-cols-3 gap-4 border-t border-white/15 pt-6">
+        <div><dt class="text-2xl font-bold">12k+</dt><dd class="text-xs text-white/70">Orders / month</dd></div>
+        <div><dt class="text-2xl font-bold">99.9%</dt><dd class="text-xs text-white/70">Uptime</dd></div>
+        <div><dt class="text-2xl font-bold">4.9★</dt><dd class="text-xs text-white/70">Merchant rating</dd></div></dl></div>
+
+    <p class="relative text-xs text-white/60">© 2026 NovaPOS Systems. All rights reserved.</p></section>
+
+  <!-- RIGHT : auth card -->
+  <section class="flex items-center justify-center p-5 sm:p-10 min-h-screen lg:min-h-0">
+    <div class="w-full max-w-[420px]">
+
+      <div class="flex justify-end gap-2 mb-4">
+        <CurSwitch/>
+        <button class="ib border bd" :style="{borderRadius:'var(--rxl)'}" @click="theme.mode=dark?'light':'dark'">
+          <Icon :n="dark?'sun':'moon'" c="w-4 h-4"/></button></div>
+
+      <div class="relative card px-6 sm:px-8 pt-14 pb-8 shadow-xl" :style="{borderRadius:'var(--r2xl)'}">
+        <span class="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 flex items-center justify-center shadow-lg"
+          :style="{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--r2xl)',boxShadow:'0 0 0 8px var(--c-bg)'}">
+          <Icon n="store" c="w-8 h-8"/></span>
+
+        <div class="text-center">
+          <h2 class="text-xl font-bold hd">{{heads[mode][0]}}</h2>
+          <p class="text-sm mut mt-1.5">{{heads[mode][1]}}</p></div>
+
+        <transition name="fade" mode="out-in">
+        <form :key="mode" class="mt-7 space-y-4" @submit.prevent="submit">
+
+          <template v-if="mode==='register'">
+            <div><label class="lbl">Full name</label>
+              <div class="relative"><Icon n="user" c="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 mut"/>
+                <input v-model="f.name" class="field pl-10" placeholder="Alex Morgan"/></div></div>
+            <div><label class="lbl">Store name</label>
+              <div class="relative"><Icon n="store" c="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 mut"/>
+                <input v-model="f.store" class="field pl-10" placeholder="My Retail Store"/></div></div></template>
+
+          <div v-if="mode!=='otp'"><label class="lbl">Email address</label>
+            <div class="relative"><Icon n="bell" c="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 mut"/>
+              <input v-model="f.email" type="email" class="field pl-10" placeholder="you@store.com" autocomplete="username"/></div></div>
+
+          <div v-if="mode==='signin'||mode==='register'"><label class="lbl">Password</label>
+            <div class="relative"><Icon n="layers" c="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 mut"/>
+              <input v-model="f.pass" :type="show?'text':'password'" class="field pl-10 pr-11" placeholder="••••••••" autocomplete="current-password"/>
+              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 mut" @click="show=!show"><Icon n="eye" c="w-4 h-4"/></button></div></div>
+
+          <div v-if="mode==='otp'"><label class="lbl">6-digit verification code</label>
+            <input v-model="f.code" maxlength="6" class="field text-center text-2xl font-bold tracking-[.5em]" placeholder="000000"/>
+            <p v-if="sent" class="mt-1.5 text-xs mut">Demo code: <b class="hd font-mono">{{sent}}</b></p>
+            <button type="button" class="mt-2 text-sm font-medium" :style="{color:'var(--c-primary)'}" @click="send">Resend code</button></div>
+
+          <div v-if="mode==='signin'" class="flex items-center justify-between text-sm">
+            <label class="flex items-center gap-2 mut cursor-pointer"><input type="checkbox" checked class="rounded" :style="{accentColor:'var(--c-primary)'}"/>Remember me</label>
+            <button type="button" class="font-medium" :style="{color:'var(--c-primary)'}" @click="go('forgot')">Forgot password?</button></div>
+
+          <transition name="fade"><p v-if="err" class="flex items-start gap-2 text-sm px-3.5 py-2.5"
+            :style="{background:'color-mix(in srgb,var(--c-danger) 12%,transparent)',color:'var(--c-danger)',borderRadius:'var(--rxl)'}">
+            <Icon n="alert" c="w-4 h-4 shrink-0 mt-0.5"/>{{err}}</p></transition>
+
+          <button type="submit" class="btn btn-p w-full py-3" :disabled="busy">
+            <svg v-if="busy" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/>
+              <path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            {{busy?'Please wait…':btns[mode]}}</button>
+
+          <p class="text-center text-sm mut">
+            <template v-if="mode==='signin'">Don't have an account?
+              <button type="button" class="font-semibold" :style="{color:'var(--c-primary)'}" @click="go('register')">Create account</button></template>
+            <template v-else>Already have an account?
+              <button type="button" class="font-semibold" :style="{color:'var(--c-primary)'}" @click="go('signin')">Sign in</button></template></p>
+        </form></transition>
+      </div>
+
+      <div v-if="mode==='signin'" class="mt-6">
+        <p class="text-xs font-semibold mut mb-2 text-center">Quick demo accounts — click to fill</p>
+        <div class="grid gap-2">
+          <button v-for="a in accounts" :key="a.email" class="flex items-center justify-between card px-3.5 py-2.5 text-sm card-h"
+            @click="f.email=a.email;f.pass='demo1234'">
+            <span class="mut">{{a.email}}</span>
+            <span class="text-[11px] font-bold" :style="{color:'var(--c-primary)'}">{{a.role}}</span></button></div></div>
+    </div></section></div>`,
+ setup(){
+  const mode=ref('signin'),err=ref(''),busy=ref(false),show=ref(false),sent=ref('');
+  const f=reactive({email:'admin@novapos.io',pass:'demo1234',name:'',store:'',code:''});
+  const heads={signin:['Sign in','Welcome back. Please sign in to your terminal.'],
+    register:['Create account','Start your 14-day free trial of NovaPOS.'],
+    forgot:['Reset password','We will send a 6-digit verification code to your email.'],
+    otp:['Verify code','Enter the 6-digit code we sent to your email.']};
+  const btns={signin:'Sign in to NovaPOS',register:'Create account',forgot:'Send code',otp:'Verify code'};
+  const go=m=>{err.value='';mode.value=m};
+  const send=()=>{sent.value=String(Math.floor(100000+Math.random()*900000));toast('Demo OTP: '+sent.value)};
+  const submit=()=>{
+    err.value='';
+    if(mode.value==='signin'){
+      const acc=ACCOUNTS.find(a=>a.email===f.email.trim().toLowerCase());
+      if(!acc)return err.value='No account found with that email address.';
+      if(f.pass.length<4)return err.value='Password must be at least 4 characters.';
+      busy.value=true;
+      setTimeout(()=>{busy.value=false;auth.user=acc;toast('Welcome back, '+acc.name.split(' ')[0]+'!')},650);
+    } else if(mode.value==='register'){
+      if(!f.name.trim())return err.value='Please enter your full name.';
+      if(!/^\\S+@\\S+\\.\\S+$/.test(f.email))return err.value='Please enter a valid email address.';
+      if(f.pass.length<6)return err.value='Password must be at least 6 characters.';
+      busy.value=true;
+      setTimeout(()=>{busy.value=false;auth.user={name:f.name,email:f.email,role:'Owner'};toast('Account created')},650);
+    } else if(mode.value==='forgot'){
+      if(!/^\\S+@\\S+\\.\\S+$/.test(f.email))return err.value='Please enter a valid email address.';
+      busy.value=true;
+      setTimeout(()=>{busy.value=false;send();go('otp')},500);
+    } else {
+      if(f.code!==sent.value)return err.value='That code is incorrect.';
+      busy.value=true;
+      setTimeout(()=>{busy.value=false;toast('Password updated — please sign in');go('signin')},500);
+    }};
+  const mixc=(a,b,t)=>th(a,b,t);
+  return{mode,err,busy,show,sent,f,heads,btns,go,send,submit,theme,dark:isDark,accounts:ACCOUNTS,mixc,
+    feats:['Lightning-fast cashier workflow','Real-time inventory and stock alerts','Excel, CSV and PDF reporting','Multi-currency, tax and KHQR ready']}}};
+
+/* ════════════ APP ════════════ */
+const App={components:{Icon,CurSwitch,LangSwitch,Dashboard,POS,Products,Orders,Discounts,Settings,Simple},
+ template:`<div class="h-full flex" :style="{background:'var(--c-bg)'}">
+  <!-- Sidebar -->
+  <aside class="hidden lg:flex flex-col shrink-0 border-r bd transition-[width] duration-300"
+    :style="{background:'var(--c-card)',width:collapsed?'78px':'264px'}">
+    <div class="h-16 flex items-center gap-3 px-4 border-b bd shrink-0">
+      <span class="w-9 h-9 flex items-center justify-center shrink-0 font-bold" :style="{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--rxl)'}"><Icon n="store"/></span>
+      <div v-if="!collapsed" class="overflow-hidden"><p class="font-bold hd leading-tight whitespace-nowrap">NovaPOS</p>
+        <p class="text-[10px] mut whitespace-nowrap">Retail Point of Sale</p></div></div>
+
+    <nav class="grow overflow-y-auto px-3 py-4 space-y-1.5">
+      <div v-for="g in nav" :key="g.g">
+        <button v-if="!collapsed" class="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-bold uppercase tracking-wider transition"
+          :style="{color:openG[g.g]?'var(--c-primary)':'var(--c-muted)',borderRadius:'var(--rlg)'}" @click="openG[g.g]=!openG[g.g]">
+          <span class="grow text-left">{{g.g}}</span>
+          <Icon n="chev" c="w-3.5 h-3.5 transition-transform duration-300" :class="openG[g.g]?'rotate-90':''"/></button>
+        <div class="grid transition-all duration-300" :style="{gridTemplateRows:(collapsed||openG[g.g])?'1fr':'0fr',opacity:(collapsed||openG[g.g])?1:0}">
+          <div class="overflow-hidden"><div class="space-y-1 pt-0.5">
+            <button v-for="it in g.items" :key="it[0]"
+              class="group relative w-full flex items-center gap-3 h-10 px-3 text-[13.5px] transition-colors duration-150"
+              :style="page===it[0]
+                ? {background:'color-mix(in srgb,var(--c-primary) 11%,transparent)',color:'var(--c-primary)',borderRadius:'var(--rxl)',fontWeight:600}
+                : {color:'var(--c-text)',borderRadius:'var(--rxl)',fontWeight:500}"
+              :class="collapsed?'justify-center px-0':''" @click="go(it[0])">
+              <span v-if="page===it[0]&&!collapsed" class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full" :style="{background:'var(--c-primary)'}"></span>
+              <Icon :n="it[2]" c="w-[18px] h-[18px] shrink-0 relative"/>
+              <span v-if="!collapsed" class="truncate relative">{{it[1]}}</span>
+              <span v-if="!collapsed&&it[0]==='pos'&&count" class="relative ml-auto min-w-[20px] h-5 px-1.5 grid place-items-center rounded-full text-[10px] font-bold tabular-nums"
+                :style="{background:'var(--c-primary)',color:'var(--c-on)'}">{{count}}</span>
+            </button></div></div></div></div></nav>
+
+    <div class="border-t bd p-3 shrink-0"><div class="flex items-center gap-3 p-2" :class="collapsed?'justify-center':''">
+      <span class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+        :style="{background:'var(--c-primary)',color:'var(--c-on)'}">{{ini}}</span>
+      <div v-if="!collapsed" class="min-w-0 grow"><p class="text-sm font-semibold hd truncate">{{auth.user.name}}</p><p class="text-xs mut">{{auth.user.role}}</p></div>
+      <button v-if="!collapsed" class="ib" style="color:var(--c-danger)" title="Sign out" @click="logout"><Icon n="x" c="w-4 h-4"/></button></div></div></aside>
+
+  <!-- Main -->
+  <div class="grow flex flex-col min-w-0">
+    <header class="h-16 shrink-0 border-b bd flex items-center gap-2 px-3 sm:px-6 sticky top-0 z-30 backdrop-blur"
+      :style="{background:'color-mix(in srgb,var(--c-card) 92%,transparent)'}">
+      <button class="lg:hidden ib" @click="drawer=true"><Icon n="menu"/></button>
+      <button class="hidden lg:inline-flex ib transition-transform duration-300" :class="collapsed?'rotate-180':''" @click="collapsed=!collapsed"><Icon n="menu"/></button>
+      <div class="min-w-0"><h2 class="font-semibold hd truncate leading-tight">{{title}}</h2>
+        <p class="hidden sm:block text-[11px] mut truncate">{{auth.user.name}} · {{auth.user.role}}</p></div>
+
+      <div class="ml-auto flex items-center gap-1.5">
+        <LangSwitch/>
+        <CurSwitch/>
+        <span class="hidden sm:block w-px h-6 mx-0.5" :style="{background:'var(--c-border)'}"></span>
+        <button class="ib" @click="cycle"><Icon :n="dark?'sun':'moon'"/></button>
+        <button class="ib relative"><Icon n="bell"/><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" :style="{background:'var(--c-danger)'}"></span></button>
+        <button class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ml-1" title="Sign out"
+          :style="{background:'var(--c-primary)',color:'var(--c-on)'}" @click="logout">{{ini}}</button></div></header>
+
+    <main class="grow overflow-y-auto overflow-x-hidden p-3 sm:p-5 lg:p-6 pb-24 lg:pb-6">
+      <transition name="pg" mode="out-in">
+        <Dashboard v-if="page==='dashboard'" key="d" @go="p=>page=p"/>
+        <POS v-else-if="page==='pos'" key="p"/>
+        <Products v-else-if="page==='products'" key="pr"/>
+        <Orders v-else-if="page==='orders'" key="o"/>
+        <Discounts v-else-if="page==='discounts'" key="di"/>
+        <Settings v-else-if="page==='settings'" key="s"/>
+        <Simple v-else-if="page==='inventory'" key="i" title="Inventory" sub="Stock levels, movements and valuation" icon="layers"/>
+        <Simple v-else-if="page==='customers'" key="c" title="Customers" sub="Customer directory and loyalty" icon="users"/>
+        <Simple v-else key="r" title="Reports" sub="Sales, profit, inventory and discount analytics" icon="chart"/>
+      </transition></main></div>
+
+  <!-- Mobile drawer -->
+  <transition name="fade"><div v-if="drawer" class="lg:hidden fixed inset-0 z-50">
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="drawer=false"></div>
+    <aside class="absolute inset-y-0 left-0 w-[280px] flex flex-col border-r bd shadow-2xl" :style="{background:'var(--c-card)'}">
+      <div class="h-16 flex items-center gap-3 px-4 border-b bd">
+        <span class="w-9 h-9 flex items-center justify-center" :style="{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--rxl)'}"><Icon n="store"/></span>
+        <p class="font-bold hd">NovaPOS</p><button class="ml-auto ib" @click="drawer=false"><Icon n="x" c="w-4 h-4"/></button></div>
+      <nav class="grow overflow-y-auto p-3 space-y-3">
+        <div v-for="g in nav" :key="g.g"><p class="px-3 mb-1 text-[10px] font-bold uppercase tracking-wider mut">{{g.g}}</p>
+          <button v-for="it in g.items" :key="it[0]" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium mb-1"
+            :style="page===it[0]?{background:'var(--c-primary)',color:'var(--c-on)',borderRadius:'var(--rxl)'}:{color:'var(--c-text)',borderRadius:'var(--rxl)'}"
+            @click="page=it[0];drawer=false"><Icon :n="it[2]" c="w-5 h-5"/>{{it[1]}}</button></div></nav></aside></div></transition>
+
+  <!-- Mobile tab bar -->
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t bd pb-safe" :style="{background:'var(--c-card)'}">
+    <div class="grid grid-cols-5">
+      <button v-for="t in tabbar" :key="t[0]" class="relative flex flex-col items-center justify-center gap-1 py-2.5"
+        :style="{color:page===t[0]?'var(--c-primary)':'var(--c-muted)'}" @click="t[0]==='more'?drawer=true:page=t[0]">
+        <span v-if="page===t[0]" class="absolute top-0 w-10 h-0.5 rounded-b-full" :style="{background:'var(--c-primary)'}"></span>
+        <span class="relative"><Icon :n="t[2]" c="w-5 h-5"/>
+          <span v-if="t[0]==='pos'&&count" class="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-bold flex items-center justify-center"
+            :style="{background:'var(--c-primary)',color:'var(--c-on)'}">{{count}}</span></span>
+        <span class="text-[10px] font-medium">{{t[1]}}</span></button></div></nav>
+
+  <!-- Toasts -->
+  <div class="fixed bottom-24 lg:bottom-5 right-4 lg:right-5 z-[100] space-y-2 w-[min(90vw,20rem)]">
+    <transition-group name="fade">
+      <div v-for="t in toasts" :key="t.id" class="flex items-center gap-3 px-3.5 py-3 shadow-lg border bd text-sm font-medium"
+        :style="{background:'var(--c-card)',borderRadius:'var(--r2xl)'}">
+        <span class="w-8 h-8 flex items-center justify-center shrink-0" :style="{background:'color-mix(in srgb,var(--c-success) 16%,transparent)',color:'var(--c-success)',borderRadius:'var(--rlg)'}"><Icon n="check" c="w-4 h-4"/></span>
+        <span class="hd">{{t.m}}</span></div></transition-group></div></div>`,
+ setup(){
+  const page=ref('dashboard'),collapsed=ref(false),drawer=ref(false);
+  const openG=reactive({Main:true,Catalogue:true,Sales:true,Marketing:true,Insights:true,System:true});
+  const titles={dashboard:'Dashboard',pos:'POS Terminal',products:'Products',inventory:'Inventory',
+    orders:'Orders',customers:'Customers',discounts:'Discounts',reports:'Reports',settings:'Settings'};
+  const title=computed(()=>titles[page.value]);
+  const go=p=>{page.value=p;drawer.value=false};
+  const cycle=()=>{theme.mode=isDark.value?'light':'dark';toast('Theme: '+theme.mode)};
+  const ini=computed(()=>auth.user.name.split(' ').map(w=>w[0]).join('').slice(0,2));
+  const logout=()=>{auth.user=null;cart.items=[];page.value='dashboard';toast('Signed out')};
+  onMounted(applyTheme);
+  return{page,collapsed,drawer,openG,nav:NAV,title,count,toasts,theme,dark:isDark,cycle,auth,ini,logout,go,
+    tabbar:[['dashboard','Home','dash'],['pos','POS','pos'],['products','Products','box'],['orders','Orders','clip'],['more','More','menu']]}}};
+
+/* ════════════ LOGIN (clean · no scroll · EN/KM) ════════════ */
+const Login={components:{Icon,CurSwitch,LangSwitch},
+ template:`<div class="h-dvh overflow-hidden flex" :style="{background:'var(--c-bg)'}">
+
+  <!-- Brand panel -->
+  <aside class="hidden lg:flex lg:w-[46%] xl:w-[48%] shrink-0 flex-col justify-between p-10 xl:p-14 text-white relative overflow-hidden"
+    :style="{background:'var(--c-primary)'}">
+    <div class="absolute -top-24 -right-20 w-80 h-80 rounded-full bg-white/[.07]"></div>
+    <div class="absolute -bottom-28 -left-16 w-96 h-96 rounded-full bg-black/[.07]"></div>
+
+    <div class="relative flex items-center gap-3">
+      <span class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur grid place-items-center"><Icon n="store" c="w-[22px] h-[22px]"/></span>
+      <div><p class="text-[15px] font-bold leading-none tracking-tight">NovaPOS</p>
+        <p class="text-[11px] text-white/70 mt-1">{{T.tagline}}</p></div></div>
+
+    <div class="relative max-w-md">
+      <h1 class="text-[34px] xl:text-[38px] font-bold leading-[1.15] tracking-tight">{{T.heroTitle}}</h1>
+      <p class="mt-4 text-[15px] text-white/75 leading-relaxed">{{T.heroText}}</p>
+      <ul class="mt-7 space-y-2.5">
+        <li v-for="f in [T.f1,T.f2,T.f3,T.f4]" :key="f" class="flex items-center gap-2.5">
+          <span class="w-5 h-5 rounded-md bg-white/15 grid place-items-center shrink-0"><Icon n="check" c="w-3 h-3"/></span>
+          <span class="text-[13px] text-white/85">{{f}}</span></li></ul></div>
+
+    <div class="relative flex items-center gap-7 border-t border-white/15 pt-5">
+      <div><p class="text-xl font-bold">12k+</p><p class="text-[11px] text-white/60">{{T.orders}}</p></div>
+      <div><p class="text-xl font-bold">99.9%</p><p class="text-[11px] text-white/60">{{T.uptime}}</p></div>
+      <div><p class="text-xl font-bold">4.9★</p><p class="text-[11px] text-white/60">{{T.rating}}</p></div></div></aside>
+
+  <!-- Form panel -->
+  <main class="grow flex flex-col min-w-0 overflow-hidden">
+    <header class="shrink-0 flex items-center gap-3 px-5 sm:px-8 py-4">
+      <div class="lg:hidden flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-xl grid place-items-center text-white shrink-0" :style="{background:'var(--c-primary)'}"><Icon n="store" c="w-[18px] h-[18px]"/></span>
+        <span class="font-bold hd tracking-tight">NovaPOS</span></div>
+      <div class="ml-auto flex items-center gap-2">
+        <LangSwitch variant="segmented"/>
+        <button type="button" class="w-9 h-9 grid place-items-center border bd mut transition"
+          :style="{borderRadius:'var(--rxl)'}" @click="theme.mode=dark?'light':'dark'">
+          <Icon :n="dark?'sun':'moon'" c="w-4 h-4"/></button></div></header>
+
+    <div class="grow min-h-0 overflow-y-auto flex items-center justify-center px-5 sm:px-8 py-2">
+      <div class="w-full max-w-[380px]">
+        <button v-if="['forgot','otp','reset'].includes(mode)" type="button"
+          class="inline-flex items-center gap-1.5 mb-4 text-[13px] font-semibold mut transition" @click="go('signin')">
+          <Icon n="chev" c="w-4 h-4 rotate-180"/>{{T.signIn}}</button>
+
+        <!-- centered logo + heading -->
+        <div class="text-center mb-6">
+          <span class="w-14 h-14 mx-auto mb-4 grid place-items-center text-white rounded-2xl"
+            :style="{background:'var(--c-primary)',boxShadow:'0 10px 24px -10px color-mix(in srgb,var(--c-primary) 75%,transparent)'}">
+            <Icon n="store" c="w-7 h-7"/></span>
+          <h2 class="text-[22px] font-bold hd leading-tight">{{head[0]}}</h2>
+          <p class="text-[13.5px] mut mt-1.5 leading-relaxed max-w-[320px] mx-auto">{{head[1]}}</p></div>
+
+          <form class="space-y-3.5" @submit.prevent="submit">
+            <template v-if="mode==='register'">
+              <div><label class="lbl">{{T.fullName}} <span style="color:var(--c-danger)">*</span></label>
+                <div class="ig"><Icon n="user" c="w-4 h-4 ic"/>
+                <input v-model="f.name" class="field pl-10 h-12" placeholder="Alex Morgan"/></div></div>
+              <div><label class="lbl">{{T.storeName}} <span style="color:var(--c-danger)">*</span></label>
+                <div class="ig"><Icon n="store" c="w-4 h-4 ic"/>
+                <input v-model="f.store" class="field pl-10 h-12" placeholder="My Retail Store"/></div></div></template>
+
+            <div v-if="mode!=='otp'"><label class="lbl">{{T.email}} <span style="color:var(--c-danger)">*</span></label>
+              <div class="ig"><Icon n="mail" c="w-4 h-4 ic"/>
+              <input v-model="f.email" type="email" autocomplete="username" class="field pl-10 h-12" placeholder="you@store.com"/></div></div>
+
+            <div v-if="['signin','register','reset'].includes(mode)">
+              <label class="lbl">{{mode==='reset'?T.newPass:T.password}} <span style="color:var(--c-danger)">*</span></label>
+              <div class="ig"><Icon n="lock" c="w-4 h-4 ic"/>
+              <input v-model="f.pass" :type="show?'text':'password'" autocomplete="current-password" class="field pl-10 pr-11 h-12" placeholder="••••••••"/>
+              <button type="button" class="ia" :class="show?'on':''" :aria-pressed="show" tabindex="-1"
+                :aria-label="show?'Hide password':'Show password'" @click="show=!show">
+                <Icon :n="show?'eyeOff':'eye'" c="w-[18px] h-[18px]"/></button></div></div>
+
+            <div v-if="['register','reset'].includes(mode)"><label class="lbl">{{T.confirm}} <span style="color:var(--c-danger)">*</span></label>
+              <div class="ig"><Icon n="lock" c="w-4 h-4 ic"/>
+              <input v-model="f.confirm" :type="show2?'text':'password'" class="field pl-10 pr-11 h-12" placeholder="••••••••"/>
+              <button type="button" class="ia" :class="show2?'on':''" :aria-pressed="show2" tabindex="-1" @click="show2=!show2">
+                <Icon :n="show2?'eyeOff':'eye'" c="w-[18px] h-[18px]"/></button></div></div>
+
+            <template v-if="mode==='otp'">
+              <div><label class="lbl">{{T.otp}}</label>
+                <input v-model="f.code" maxlength="6" inputmode="numeric" class="field h-14 text-center text-[22px] font-bold tracking-[.45em]" placeholder="000000"/>
+                <p v-if="sent" class="mt-2 text-xs mut">Demo code: <b class="hd font-mono">{{sent}}</b></p></div>
+              <button type="button" class="text-[13px] font-semibold" :style="{color:'var(--c-primary)'}" @click="send">{{T.resend}}</button></template>
+
+            <div v-if="mode==='signin'" class="flex items-center justify-between gap-3 text-[13px]">
+              <label class="flex items-center gap-2 mut cursor-pointer"><input type="checkbox" checked class="rounded w-4 h-4" :style="{accentColor:'var(--c-primary)'}"/>{{T.remember}}</label>
+              <button type="button" class="font-semibold" :style="{color:'var(--c-primary)'}" @click="go('forgot')">{{T.forgotLink}}</button></div>
+
+            <transition enter-active-class="transition duration-200" enter-from-class="opacity-0 -translate-y-1">
+              <p v-if="err" class="flex items-start gap-2 text-[13px] px-3 py-2.5" role="alert"
+                :style="{background:'color-mix(in srgb,var(--c-danger) 12%,transparent)',color:'var(--c-danger)',borderRadius:'var(--rxl)'}">
+                <Icon n="alert" c="w-4 h-4 shrink-0 mt-px"/>{{err}}</p></transition>
+
+            <button type="submit" class="btn btn-p w-full h-12 text-[15px]" :disabled="busy">
+              <svg v-if="busy" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/>
+                <path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+              {{busy?'…':cta}}</button></form>
+
+          <p v-if="!['forgot','otp','reset'].includes(mode)" class="mt-5 text-center text-[13px] mut">
+            <template v-if="mode==='signin'">{{T.noAccount}}
+              <button class="font-semibold" :style="{color:'var(--c-primary)'}" @click="go('register')">{{T.register}}</button></template>
+            <template v-else>{{T.haveAccount}}
+              <button class="font-semibold" :style="{color:'var(--c-primary)'}" @click="go('signin')">{{T.signIn}}</button></template></p>
+
+        <div v-if="mode==='signin'" class="mt-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="h-px grow" :style="{background:'var(--c-border)'}"></span>
+            <span class="text-[11px] font-semibold uppercase tracking-wider mut">{{T.demo}}</span>
+            <span class="h-px grow" :style="{background:'var(--c-border)'}"></span></div>
+          <div class="flex flex-wrap justify-center gap-2">
+            <button v-for="a in accounts" :key="a.email" type="button"
+              class="inline-flex items-center gap-1.5 px-3 h-8 text-[12px] font-semibold border bd transition"
+              :style="{borderRadius:'var(--rxl)',color:'var(--c-text)',background:'var(--c-card)'}"
+              @click="f.email=a.email;f.pass='demo1234'">
+              <span class="w-1.5 h-1.5 rounded-full" :style="{background:'var(--c-primary)'}"></span>{{a.role}}</button></div></div>
+      </div></div>
+
+    <footer class="shrink-0 px-5 sm:px-8 py-3 text-center"><p class="text-[11px] mut">© 2026 NovaPOS Systems</p></footer>
+  </main></div>`,
+ setup(){
+  const mode=ref('signin'),err=ref(''),busy=ref(false),show=ref(false),show2=ref(false),sent=ref('');
+  const f=reactive({email:'admin@novapos.io',pass:'demo1234',name:'',store:'',confirm:'',code:''});
+  const head=computed(()=>({signin:[T.value.signIn,T.value.signInSub],register:[T.value.register,T.value.registerSub],
+    forgot:[T.value.forgot,T.value.forgotSub],otp:[T.value.otp,T.value.otpSub],reset:[T.value.newPass,T.value.forgotSub]})[mode.value]);
+  const cta=computed(()=>({signin:T.value.signIn,register:T.value.register,forgot:T.value.sendCode,
+    otp:T.value.verify,reset:T.value.save})[mode.value]);
+  const go=m=>{err.value='';mode.value=m};
+  const send=()=>{sent.value=String(Math.floor(100000+Math.random()*900000));toast('Demo code: '+sent.value)};
+  const submit=()=>{err.value='';
+    if(mode.value==='signin'){
+      const a=ACCOUNTS.find(x=>x.email===f.email.trim().toLowerCase());
+      if(!a)return err.value='No account found with that email address.';
+      if(f.pass.length<4)return err.value='Password must be at least 4 characters.';
+      busy.value=true;setTimeout(()=>{busy.value=false;auth.user=a;toast('Welcome back, '+a.name.split(' ')[0]+'!')},600);
+    }else if(mode.value==='register'){
+      if(!f.name.trim())return err.value='Please enter your full name.';
+      if(f.pass.length<6)return err.value='Password must be at least 6 characters.';
+      if(f.pass!==f.confirm)return err.value='Passwords do not match.';
+      busy.value=true;setTimeout(()=>{busy.value=false;auth.user={name:f.name,email:f.email,role:'Owner'};toast('Account created')},600);
+    }else if(mode.value==='forgot'){
+      if(!/^\\S+@\\S+\\.\\S+$/.test(f.email))return err.value='Please enter a valid email address.';
+      busy.value=true;setTimeout(()=>{busy.value=false;send();go('otp')},450);
+    }else if(mode.value==='otp'){
+      if(f.code!==sent.value)return err.value='That code is incorrect.';
+      go('reset');
+    }else{
+      if(f.pass.length<6)return err.value='Password must be at least 6 characters.';
+      if(f.pass!==f.confirm)return err.value='Passwords do not match.';
+      busy.value=true;setTimeout(()=>{busy.value=false;toast('Password updated');go('signin')},450)}};
+  return{mode,err,busy,show,show2,sent,f,head,cta,go,send,submit,theme,dark:isDark,accounts:ACCOUNTS,T}}};
+
+/* ════════════ ROOT : auth gate ════════════ */
+const Root={components:{Login,App},
+ template:`<transition name="fade" mode="out-in">
+   <Login v-if="!auth.user" key="login"/>
+   <App v-else key="app"/>
+ </transition>`,
+ setup(){
+   const mq=window.matchMedia('(prefers-color-scheme: dark)');
+   theme.sysDark=mq.matches; mq.addEventListener('change',e=>theme.sysDark=e.matches);
+   applyTheme();
+   return{auth}}};
+
+const app=createApp(Root);
+app.component('Pagination',Pagination);
+app.component('FilterPanel',FilterPanel);
+app.component('Confirm',Confirm);
+app.component('Badge',Badge);
+app.component('Icon',Icon);
+app.component('LangSwitch',LangSwitch);
+app.mount('#app');
+</script>
+</body>
+</html>

@@ -1,0 +1,763 @@
+/* ===========================================================================
+   TYPOGRAPHY — dual script system
+   Noto Sans       → Latin / numerals (neutral grotesque, superb at small sizes)
+   Noto Sans Khmer → Khmer (same humanist skeleton, pairs cleanly with Noto Sans)
+
+   Noto Sans carries no Khmer glyphs, so the browser falls back per-glyph:
+   Khmer characters automatically render in Noto Sans Khmer even inside an
+   English sentence. One stack, zero mixed-language artefacts.
+
+   NOTE: @import must precede every other rule, so this stays above the
+   Tailwind import — otherwise the optimizer drops it and no font loads.
+   =========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap');
+
+@import 'tailwindcss';
+
+/* Class based dark mode (toggled on <html> by stores/theme.js) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===========================================================================
+   DESIGN TOKENS
+   Every token resolves to a runtime CSS variable written by stores/theme.js.
+   This is the single global source of truth for the whole application.
+   =========================================================================== */
+@theme {
+  --color-brand-50: var(--brand-50, #eef2ff);
+  --color-brand-100: var(--brand-100, #e0e7ff);
+  --color-brand-200: var(--brand-200, #c7d2fe);
+  --color-brand-300: var(--brand-300, #a5b4fc);
+  --color-brand-400: var(--brand-400, #818cf8);
+  --color-brand-500: var(--brand-500, #6366f1);
+  --color-brand-600: var(--brand-600, #4f46e5);
+  --color-brand-700: var(--brand-700, #4338ca);
+  --color-brand-800: var(--brand-800, #3730a3);
+  --color-brand-900: var(--brand-900, #312e81);
+
+  /* semantic surfaces */
+  --color-canvas: var(--c-bg, #f1f5f9);
+  --color-surface: var(--c-card, #ffffff);
+  --color-surface-subtle: var(--c-subtle, #f8fafc);
+  --color-sidebar: var(--c-sidebar, #ffffff);
+  --color-navbar: var(--c-navbar, #ffffff);
+  --color-line: var(--c-border, #e2e8f0);
+  --color-field: var(--c-input, #ffffff);
+  --color-field-line: var(--c-input-border, #e2e8f0);
+
+  --color-field-fill: var(--c-field-fill, #f1f5f9);
+
+  /* semantic text */
+  --color-heading: var(--c-heading, #0f172a);
+  --color-ink: var(--c-text, #334155);
+  --color-ink-soft: var(--c-text-secondary, #475569);
+  --color-muted: var(--c-muted, #94a3b8);
+  --color-link: var(--c-link, #4f46e5);
+
+  /* status */
+  --color-success: var(--c-success, #10b981);
+  --color-warning: var(--c-warning, #f59e0b);
+  --color-danger: var(--c-danger, #ef4444);
+  --color-info: var(--c-info, #0ea5e9);
+
+  --font-sans: 'Noto Sans', 'Noto Sans Khmer', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-khmer: 'Noto Sans Khmer', 'Noto Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ===========================================================================
+   TYPE SCALE — 7 steps only. Every screen composes from these.
+   Using more sizes than this is what made the old UI feel unsettled.
+   =========================================================================== */
+@layer components {
+  .t-display { @apply text-[22px] sm:text-[24px] font-bold leading-tight tracking-[-0.016em]; }
+  .t-title   { @apply text-[17px] font-bold leading-snug tracking-[-0.012em]; }
+  .t-section { @apply text-[15px] font-semibold leading-snug; }
+  .t-body    { @apply text-[13.5px] leading-relaxed; }
+  .t-label   { @apply text-[12px] font-semibold; }
+  .t-caption { @apply text-[11.5px] leading-normal; }
+  .t-micro   { @apply text-[10.5px] font-bold uppercase tracking-[0.06em]; }
+
+  /* Page rhythm — one source of truth for vertical spacing */
+  .stack-page    { @apply space-y-5; }
+  .stack-section { @apply space-y-4; }
+  .stack-form    { @apply space-y-4; }
+  .stack-tight   { @apply space-y-2; }
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/* Global guard: nothing may push the page sideways. Tables opt back in
+   via their own `overflow-x-auto` wrapper. */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--c-bg);
+  color: var(--c-text);
+  /* Noto Sans has a larger x-height than Inter — no negative tracking needed */
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------------------------------------------------------------------------
+   Khmer mode — the script has tall ascenders/descenders and no uppercase,
+   so it needs more leading, zero tracking and a slightly smaller optical size.
+   --------------------------------------------------------------------------- */
+.font-khmer,
+.font-khmer body {
+  font-family: var(--font-khmer);
+  letter-spacing: 0;
+  line-height: 1.75;
+}
+.font-khmer h1,
+.font-khmer h2,
+.font-khmer h3,
+.font-khmer h4 {
+  letter-spacing: 0;
+  line-height: 1.45;
+  font-weight: 700;
+}
+/* Khmer glyphs render optically larger — pull controls back for even height */
+.font-khmer .btn-label,
+.font-khmer button,
+.font-khmer .field,
+.font-khmer .label,
+.font-khmer th,
+.font-khmer td {
+  line-height: 1.6;
+}
+.font-khmer .text-\[10px\],
+.font-khmer .text-\[11px\] {
+  font-size: 11.5px;
+}
+/* Latin numerals inside Khmer copy keep Noto Sans tabular figures */
+.font-khmer .tabular-nums,
+.font-khmer td,
+.font-khmer th {
+  font-family: 'Noto Sans', var(--font-khmer);
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.014em;
+  text-wrap: balance;
+}
+
+/* Numeric columns stay aligned everywhere */
+.tabular-nums,
+td,
+th {
+  font-variant-numeric: tabular-nums;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--c-muted) 55%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-muted);
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--c-muted) 55%, transparent) transparent;
+}
+
+/* A scrolled table body must never clip its final row against the pager. */
+.table-scroll {
+  padding-bottom: 0.5rem;
+  scroll-padding-bottom: 1.5rem;
+}
+
+/* ===========================================================================
+   COMPONENT PRIMITIVES — all themed
+   =========================================================================== */
+@layer components {
+  .card {
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-card);
+  }
+  .card-hover {
+    transition:
+      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.22s ease,
+      border-color 0.22s ease;
+  }
+  .card-hover:hover {
+    border-color: color-mix(in srgb, var(--c-primary) 38%, var(--c-border));
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+  }
+
+  /* Metric tile — borderless, elevation only. Used by StatCard. */
+  .metric {
+    background: var(--c-card);
+    border: 0;
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-card);
+    transition:
+      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.22s ease;
+  }
+  .metric:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+  /* ---------------------------------------------------------------------
+     INPUT SYSTEM — clear 1px border, brand border + soft ring on focus.
+     --------------------------------------------------------------------- */
+  .field {
+    width: 100%;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--c-input-border);
+    background: var(--c-input);
+    padding: 0.65rem 0.9rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--c-text);
+    outline: none;
+    appearance: none;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .field::placeholder {
+    color: var(--c-muted);
+  }
+  .field:hover:not(:disabled):not(:focus) {
+    border-color: color-mix(in srgb, var(--c-primary) 42%, var(--c-input-border));
+  }
+  .field:focus,
+  .field:focus-visible {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-primary) 13%, transparent);
+  }
+  .field:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .field-error {
+    border-color: var(--c-danger);
+  }
+  .field-error:focus {
+    border-color: var(--c-danger);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-danger) 13%, transparent);
+  }
+
+  /* Input group: icon turns brand-coloured while the field has focus */
+  .input-group {
+    position: relative;
+  }
+  .input-group .input-icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--c-muted);
+    pointer-events: none;
+    transition: color 0.15s ease;
+  }
+  .input-group:focus-within .input-icon {
+    color: var(--c-primary);
+  }
+  .input-group .input-action {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: var(--c-muted);
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .input-group .input-action:hover {
+    color: var(--c-primary);
+    background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  }
+  .input-group .input-action.is-active {
+    color: var(--c-primary);
+  }
+  .label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-secondary);
+    margin-bottom: 0.375rem;
+  }
+  .table-head {
+    background: color-mix(in srgb, var(--c-subtle) 85%, transparent);
+    color: var(--c-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--c-border);
+    backdrop-filter: blur(6px);
+  }
+  .table-row {
+    transition: background-color 0.15s ease;
+  }
+  .table-row:hover {
+    background: color-mix(in srgb, var(--c-primary) 6%, transparent);
+  }
+  .icon-btn {
+    padding: 0.5rem;
+    border-radius: var(--radius-lg);
+    color: var(--c-muted);
+    transition: all 0.15s ease;
+  }
+  .icon-btn:hover {
+    color: var(--c-primary);
+    background: color-mix(in srgb, var(--c-primary) 10%, transparent);
+  }
+  .icon-btn-danger {
+    padding: 0.5rem;
+    border-radius: var(--radius-lg);
+    color: var(--c-muted);
+    transition: all 0.15s ease;
+  }
+  .icon-btn-danger:hover {
+    color: var(--c-danger);
+    background: color-mix(in srgb, var(--c-danger) 10%, transparent);
+  }
+  /* (page header styling now lives in components/layout/PageHeader.vue) */
+  /* Compact segmented control — 36px tall, matches `sm` controls. */
+  .segmented {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    height: 2.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--c-subtle);
+    border: 1px solid var(--c-border);
+  }
+  .segmented-item {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 0.625rem;
+    border-radius: calc(var(--radius-lg) - 3px);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--c-muted);
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .segmented-item:hover {
+    color: var(--c-text);
+  }
+  .segmented-item-active,
+  .segmented-item-active:hover {
+    background: var(--c-card);
+    color: var(--c-heading);
+    font-weight: 600;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--c-heading) 8%, transparent);
+  }
+
+  /* ---------------------------------------------------------------------
+     TABLE DENSITY — one rhythm for every table in the product.
+     Header 40px · rows 56px · 20px gutters.
+     --------------------------------------------------------------------- */
+  .cell {
+    padding: 0 1.25rem;
+    height: 3.5rem;
+    vertical-align: middle;
+  }
+  .cell-head {
+    padding: 0 1.25rem;
+    height: 2.5rem;
+    vertical-align: middle;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+    white-space: nowrap;
+    background: var(--c-subtle);
+    border-bottom: 1px solid var(--c-border);
+  }
+  /* edge gutters stay flush with the card padding */
+  .cell:first-child,
+  .cell-head:first-child {
+    padding-left: 1.25rem;
+  }
+  .cell:last-child,
+  .cell-head:last-child {
+    padding-right: 1.25rem;
+  }
+
+  /* Actions column pinned to the right edge — row actions stay reachable
+     without scrolling a wide table back and forth. */
+  .cell-sticky {
+    position: sticky;
+    right: 0;
+    background: var(--c-card);
+    box-shadow: -1px 0 0 var(--c-border);
+  }
+  .cell-head.cell-sticky {
+    background: var(--c-subtle);
+    z-index: 5;
+  }
+  .table-row:hover .cell-sticky {
+    background: color-mix(in srgb, var(--c-primary) 6%, var(--c-card));
+  }
+}
+
+/* ===========================================================================
+   THEME BRIDGE
+   Maps the neutral utility classes used across the app onto theme tokens so a
+   single colour change updates every page without per-component overrides.
+   Unlayered rules intentionally win over Tailwind's layered utilities.
+   =========================================================================== */
+
+/* surfaces */
+.bg-white,
+.dark .dark\:bg-slate-900 {
+  background-color: var(--c-card);
+}
+.bg-slate-100,
+.dark .dark\:bg-slate-950 {
+  background-color: var(--c-bg);
+}
+.bg-slate-50,
+.bg-slate-50\/60,
+.bg-surface-subtle,
+.dark .dark\:bg-slate-800,
+.dark .dark\:bg-slate-800\/50,
+.dark .dark\:bg-slate-800\/60,
+.dark .dark\:bg-slate-800\/80 {
+  background-color: var(--c-subtle);
+}
+.hover\:bg-slate-50:hover,
+.dark .dark\:hover\:bg-slate-800:hover,
+.dark .dark\:hover\:bg-slate-800\/50:hover,
+.dark .dark\:hover\:bg-slate-800\/80:hover {
+  background-color: color-mix(in srgb, var(--c-primary) 7%, var(--c-subtle));
+}
+.hover\:bg-slate-200:hover,
+.dark .dark\:hover\:bg-slate-700:hover {
+  background-color: color-mix(in srgb, var(--c-primary) 14%, var(--c-subtle));
+}
+.bg-slate-900,
+.dark .dark\:bg-slate-800 ~ .bg-slate-900 {
+  background-color: var(--c-heading);
+}
+
+/* borders & dividers */
+.border-slate-200,
+.border-slate-200\/80,
+.dark .dark\:border-slate-800 {
+  border-color: var(--c-border);
+}
+.border-slate-300,
+.dark .dark\:border-slate-700,
+.dark .dark\:border-slate-600 {
+  border-color: color-mix(in srgb, var(--c-border) 70%, var(--c-muted));
+}
+.divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .dark\:divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--c-border);
+}
+.hover\:border-brand-400:hover,
+.hover\:border-brand-300:hover {
+  border-color: color-mix(in srgb, var(--c-primary) 55%, transparent);
+}
+
+/* text */
+.text-slate-900,
+.dark .dark\:text-white {
+  color: var(--c-heading);
+}
+.text-slate-800,
+.text-slate-700,
+.dark .dark\:text-slate-100,
+.dark .dark\:text-slate-200 {
+  color: var(--c-text);
+}
+.text-slate-600,
+.dark .dark\:text-slate-300 {
+  color: var(--c-text-secondary);
+}
+.text-slate-500,
+.text-slate-400,
+.text-slate-300,
+.dark .dark\:text-slate-400 {
+  color: var(--c-muted);
+}
+
+/* brand text/bg utilities follow the scale automatically via @theme */
+.text-brand-600,
+.text-brand-700 {
+  color: var(--c-primary);
+}
+.bg-brand-600 {
+  background-color: var(--c-btn-bg);
+  color: var(--c-btn-text);
+}
+.hover\:bg-brand-700:hover {
+  background-color: color-mix(in srgb, var(--c-btn-bg) 85%, #000);
+}
+
+/* status utilities */
+.text-emerald-600,
+.text-emerald-700,
+.dark .dark\:text-emerald-400 {
+  color: var(--c-success);
+}
+.text-rose-600,
+.text-rose-700,
+.text-rose-500,
+.dark .dark\:text-rose-400 {
+  color: var(--c-danger);
+}
+.text-amber-500,
+.text-amber-600,
+.text-amber-700,
+.dark .dark\:text-amber-400 {
+  color: var(--c-warning);
+}
+.text-sky-600,
+.text-sky-700,
+.dark .dark\:text-sky-400 {
+  color: var(--c-info);
+}
+.bg-emerald-50,
+.dark .dark\:bg-emerald-500\/10,
+.dark .dark\:bg-emerald-500\/15 {
+  background-color: var(--c-success-soft);
+}
+.bg-rose-50,
+.dark .dark\:bg-rose-500\/10 {
+  background-color: var(--c-danger-soft);
+}
+.bg-amber-50,
+.dark .dark\:bg-amber-500\/10 {
+  background-color: var(--c-warning-soft);
+}
+.bg-sky-50,
+.dark .dark\:bg-sky-500\/10 {
+  background-color: var(--c-info-soft);
+}
+.bg-rose-600 {
+  background-color: var(--c-danger);
+}
+.hover\:bg-rose-700:hover {
+  background-color: color-mix(in srgb, var(--c-danger) 85%, #000);
+}
+.bg-emerald-600 {
+  background-color: var(--c-success);
+}
+.hover\:bg-emerald-700:hover {
+  background-color: color-mix(in srgb, var(--c-success) 85%, #000);
+}
+.bg-amber-500 {
+  background-color: var(--c-warning);
+}
+
+/* accent helpers used by POS + public menu */
+.pos-active {
+  background: var(--pos-active-category);
+  color: var(--pos-active-category-text);
+  border-color: var(--pos-active-category);
+}
+.pos-selected {
+  border-color: var(--pos-selected-product);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pos-selected-product) 22%, transparent);
+}
+.cart-highlight {
+  background: var(--pos-cart-highlight);
+}
+.text-discount {
+  color: var(--pos-discount);
+}
+.text-paid {
+  color: var(--pos-payment-success);
+}
+.menu-header {
+  background: var(--menu-header);
+  color: var(--menu-header-text);
+}
+.menu-button {
+  background: var(--menu-button);
+  color: var(--menu-button-text);
+}
+.menu-price {
+  color: var(--menu-price);
+}
+.menu-promotion {
+  background: color-mix(in srgb, var(--menu-promotion) 18%, transparent);
+  color: var(--menu-promotion);
+}
+.menu-checkout {
+  background: var(--menu-checkout);
+  color: var(--menu-checkout-text);
+}
+
+/* ===========================================================================
+   ANIMATIONS
+   =========================================================================== */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.18s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.page-enter-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.page-leave-active {
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.22s ease;
+}
+.list-enter-from {
+  opacity: 0;
+  transform: translateX(14px);
+}
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(-14px);
+}
+.list-move {
+  transition: transform 0.22s ease;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-rise {
+  animation: rise 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Staggered entrance for grids of cards / metrics */
+.stagger > * {
+  animation: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger > *:nth-child(3) { animation-delay: 0.1s; }
+.stagger > *:nth-child(4) { animation-delay: 0.14s; }
+.stagger > *:nth-child(5) { animation-delay: 0.18s; }
+.stagger > *:nth-child(6) { animation-delay: 0.22s; }
+
+/* POS enters as a confident, smooth full-screen surface */
+@keyframes kiosk-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-kiosk {
+  animation: kiosk-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Donut sweep */
+@keyframes donut-in {
+  from {
+    stroke-dashoffset: var(--dash-start);
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Global centered loader — indeterminate sweep across the top of the screen */
+@keyframes loader-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* safe-area padding for mobile tab bar */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ===========================================================================
+   RECEIPT PRINTING
+   =========================================================================== */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #receipt-print,
+  #receipt-print * {
+    visibility: visible;
+    color: #000 !important;
+    background: #fff !important;
+  }
+  #receipt-print {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    padding: 12px 16px;
+  }
+}
